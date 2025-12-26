@@ -1,0 +1,382 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+  border-radius: 5px;
+}
+
+.read-the-docs {
+  color: #888;
+}
+/* Single CSS file for full page styling (updated to make dashboard background white) */
+
+/* Colors & tokens */
+
+/* Outer frame & canvas */
+.outer-frame{
+  min-height:88vh;
+  padding:22px;
+}
+.app-canvas{
+  width:1250px;
+  background:var(--canvas-bg);
+  border-radius:4px;
+  overflow:hidden;
+  /* changed: make outer border light (not black) so dashboard looks white */
+  border: 1px solid #e6e9ee;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.04);
+}
+
+/* top thin bar — make it light / subtle instead of black */
+.top-dark-bar{
+  height:8px;
+  background: transparent; /* removed dark bar */
+}
+
+/* Layout */
+.d-flex{display:flex}
+.flex-grow-1{flex:1}
+
+/* SIDEBAR */
+.sidebar{
+  width:260px;
+  background:transparent;
+  padding:18px 18px 30px 18px;
+  border-right:1px solid var(--card-border);
+}
+.sidebar-card{
+  background: #fff;
+  border-radius:14px;
+  border:1px solid var(--card-border);
+  box-shadow: 0 6px 20px rgba(17,24,39,0.03);
+}
+.logo-circle{
+  width:86px;
+  height:86px;
+  border-radius:50%;
+  object-fit:cover;
+  border:6px solid #fff;
+  box-shadow:0 8px 30px rgba(0,0,0,0.08);
+}
+.brand-title{
+  font-weight:700;
+  margin-top:6px;
+}
+
+/* Sidebar nav links */
+.sidebar .nav-link{
+  color:#374151;
+  font-weight:600;
+  padding:10px 12px;
+  border-radius:8px;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+}
+.sidebar .nav-link:hover{background:var(--soft-gray); color:var(--accent)}
+.sidebar .nav-link.active{background:#0b0b0b;color:#fff;border-radius:12px;padding:10px 14px}
+
+/* small radios area */
+.form-check-input{
+  width:16px;
+  height:16px;
+}
+
+/* main content */
+main{padding:28px 34px}
+.header-row .welcome h4{font-size:20px;font-weight:700;margin:0}
+.header-row .welcome .small{color:var(--muted)}
+
+/* search & actions */
+.search-box{
+  min-width:420px;
+  position:relative;
+}
+.search-input{
+  width:420px;
+  height:40px;
+  border-radius:24px;
+  padding-left:18px;
+  padding-right:48px;
+  border:1px solid var(--card-border);
+  background:#fff;
+}
+.search-icon{
+  position:absolute;
+  right:16px;
+  color:var(--muted);
+  font-size:1.05rem;
+}
+
+/* action icons */
+.icon-btn{
+  width:44px;
+  height:44px;
+  border-radius:10px;
+  border:1px solid var(--card-border);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  color:#374151;
+}
+.icon-btn:hover{background:#f8fafc}
+.notif-badge{
+  position:absolute;
+  top:6px;
+  right:6px;
+  background:#ff4d4f;
+  color:#fff;
+  font-size:11px;
+  padding:2px 6px;
+  border-radius:10px;
+}
+
+/* user small */
+.user-avatar{
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #fff;
+  box-shadow:0 6px 20px rgba(0,0,0,0.06);
+}
+
+/* stats row */
+.stats-row .stat-card{
+  border:1px solid var(--card-border);
+  border-radius:8px;
+  background:#fff;
+  min-height:72px;
+  box-shadow: 0 6px 20px rgba(17,24,39,0.03);
+}
+.stat-card .h5{font-size:20px; font-weight:700}
+
+/* staff summary */
+.tab-card{
+  border-radius:40px;
+  border:1px solid var(--card-border);
+  background:var(--soft-gray);
+}
+.tab-card .nav-pills .nav-link{
+  border-radius:20px;
+  padding:8px 18px;
+  color:#374151;
+  background:transparent;
+}
+.tab-card .nav-pills .nav-link.active{
+  background: #def0ff;
+  color:var(--accent);
+  font-weight:700;
+}
+
+/* inner search */
+.inner-search .form-control{
+  border-radius:8px;
+  min-height:44px;
+  border:1px solid var(--card-border);
+}
+.inner-search .btn{
+  border-radius:8px;
+}
+
+/* content empty area */
+.content-empty{
+  min-height:300px;
+  background: linear-gradient(180deg, rgba(246,248,250,0.6), rgba(255,255,255,0));
+  border-radius:8px;
+}
+
+/* small typography tweaks */
+small.text-muted{color:var(--muted)}
+.badge.bg-primary{background:#dbefff;color:var(--accent);font-weight:600}
+.badge.bg-light{background:#f8fafc;color:#0656a8;border:1px solid #e6f2ff}
+
+/* responsiveness */
+@media (max-width: 1200px){
+  .app-canvas{width:100%; margin:0 10px}
+  .search-box{min-width:260px}
+}
+@media (max-width: 768px){
+  .sidebar{display:none}
+  .search-box{min-width:160px}
+  main{padding:16px}
+}
+
+/* =========================
+   Sidebar replica CSS (added)
+   ========================= */
+
+/* Variables for sidebar replica */
+:root{
+  --sr-border: #e6e9ee;
+  --sr-muted: #9ca3af;
+  --sr-text: #111827;
+  --sr-pill-bg: #000000;
+  --sr-radio-ring: #dbe9ff;
+  --sr-radio-border: #9fb9df;
+  --sr-radio-dot: #6aa0e6;
+}
+
+/* card container (menu) */
+.menu-list{list-style:none;padding:8px 6px;margin:0;display:block}
+
+/* generic menu item */
+.menu-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 10px;
+  border-radius:8px;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:background .15s;
+}
+.menu-item:hover{background:#fbfbfb}
+
+/* icon wrapper */
+.menu-item .icon{
+  width:34px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-right:6px;
+}
+.menu-item .icon svg{display:block}
+
+/* label */
+.menu-item .label{
+  flex:1;
+  font-weight:700;
+  color:#374151;
+  margin-left:6px;
+}
+
+/* chevron on far right */
+.menu-item .chev{width:18px;display:flex;align-items:center;justify-content:center}
+
+/* Active (Team) pill style */
+.menu-item.active{
+  background:var(--sr-pill-bg);
+  color:#fff;
+  border-radius:22px;
+  padding:12px 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+.menu-item.active .label{color:#fff}
+.menu-item.active .icon svg path,
+.menu-item.active .icon svg circle,
+.menu-item.active .icon svg rect{
+  stroke:#ffffff !important;
+  fill:none;
+}
+
+/* make the icon for active pill slightly muted white */
+.menu-item.active .icon{margin-right:10px}
+
+/* sub items (radios) */
+.sub-item{padding:8px 6px 0 6px;margin-bottom:6px}
+.radio-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+}
+.sub-label{
+  color:#6b7280;
+  font-weight:700;
+}
+
+/* custom radio */
+.custom-radio{
+  position:relative;
+  width:28px;
+  height:28px;
+  display:inline-block;
+}
+.custom-radio input[type="radio"]{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  cursor:pointer;
+  margin:0;
+  z-index:3;
+}
+.custom-radio .ring{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  border:2px solid var(--sr-radio-border);
+  background:var(--sr-radio-ring);
+  box-shadow: inset 0 0 0 4px rgba(255,255,255,1);
+}
+.custom-radio .dot{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:12px;
+  height:12px;
+  background:transparent;
+  border-radius:50%;
+  transform:translate(-50%,-50%) scale(0);
+  transition:transform .12s ease;
+}
+/* checked state */
+.custom-radio input[type="radio"]:checked + .ring{ border-color: #7aa6e6; background:rgba(123,165,230,0.08) }
+.custom-radio input[type="radio"]:checked + .ring + .dot{ background:var(--sr-radio-dot); transform:translate(-50%,-50%) scale(1) }
+
+/* bottom logout spacing */
+.menu-item.bottom{margin-top:10px;border-top:1px solid var(--sr-border);padding-top:14px}
+
+/* small visual tweaks for svg strokes color fallback */
+.menu-item svg path{stroke:#9CA3AF}
+.menu-item svg rect{stroke:#9CA3AF}
+.menu-item svg circle{stroke:#9CA3AF}
+.menu-item svg line{stroke:#9CA3AF}
+
+/* ensure active chevron white and others dark */
+.menu-item:not(.active) .chev svg path{stroke:#111827}
+.menu-item.active .chev svg path{stroke:#ffffff}
+
+/* spacing adjustments */
+.menu-item + .sub-item{margin-top:0}
+
+
