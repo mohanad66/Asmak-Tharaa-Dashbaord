@@ -13,22 +13,25 @@ import {
   Alert,
 } from "@mui/material";
 import { Home, People } from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
 
 const AddCallcenter = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
+    email: "",
     phone: "",
-    // salary: 0,
+    ssn: "",
     address: "",
     password: "",
   });
 
   const [images, setImages] = useState([
-    { id: 1, file: null, preview: null, label: "Photo 1", width: 80 },
-    { id: 2, file: null, preview: null, label: "Photo 2", width: 170 },
+    { id: 1, file: null, preview: null, label: t('photo_1'), width: 80 },
+    { id: 2, file: null, preview: null, label: t('photo_2'), width: 170 },
   ]);
 
-  const [teamType, setTeamType] = useState("Team from resturant");
+  const [teamType, setTeamType] = useState(t('team_from_restaurant'));
   const [alert, setAlert] = useState({
     show: false,
     message: "",
@@ -47,7 +50,7 @@ const AddCallcenter = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 4 * 1024 * 1024) {
-        showAlert("File size must be less than 4MB", "error");
+        showAlert(t('file_size_must_be_less_than_4mb'), "error");
         return;
       }
 
@@ -59,7 +62,7 @@ const AddCallcenter = () => {
         "image/jpg",
       ];
       if (!validTypes.includes(file.type)) {
-        showAlert("Please select SVG, PNG, or JPG files only", "error");
+        showAlert(t('please_select_svg_png_or_jpg_files_only'), "error");
         return;
       }
 
@@ -99,54 +102,70 @@ const AddCallcenter = () => {
     );
   };
 
-  const handleSubmit = (e) => {
+ const handleSubmit = (e) => {
     e.preventDefault();
 
     if (
       !formData.name ||
+      !formData.email ||
       !formData.phone ||
-      //   !formData.salary ||
+      !formData.ssn ||
       !formData.address ||
       !formData.password
     ) {
-      showAlert("Please fill in all required fields", "error");
+      showAlert(t('please_fill_in_all_required_fields'), "error");
+      return;
+    }
+
+    // Validate SSN: must be exactly 14 characters (CHANGED FROM 13 TO 14)
+    if (formData.ssn.length !== 14) {
+      showAlert('SSN must be exactly 14 characters', "error");
       return;
     }
 
     let token = JSON.parse(localStorage.getItem("token"));
 
+    const requestData = {
+      ssn: formData.ssn,
+      userName: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+      passwordHash: formData.password,
+      role: "User",
+      vehicleType: 0
+    };
+
     axios
-      .post(
-        `https://tharaa.premiumasp.net/api/CallCenter`,
-        {
-          callcenterName: formData.name,
-          phoneNumber: formData.phone,
-          driverPhotoUrl: "string",
-          //   salary: Number(formData.salary),
-          address: formData.address,
-          password: formData.password,
+      .post(`/api/Users`, requestData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
+      })
       .then((res) => {
-        showAlert(res.data.message || "Callcenter added successfully!");
+        console.log("Success:", res.data);
+        showAlert(res.data.message || t('callcenter_added_successfully'));
 
         setFormData({
           name: "",
+          email: "",
           phone: "",
-          //   salary: 0,
+          ssn: "",
           address: "",
           password: "",
         });
       })
       .catch((error) => {
-        showAlert("Error adding Callcenter", "error");
-        console.error("Error:", error);
+        console.log("ERROR:", JSON.stringify(error.response?.data, null, 2));
+        
+        const ssnError = error.response?.data?.errors?.Ssn?.[0];
+        const errorMessage = ssnError || 
+                           error.response?.data?.message || 
+                           error.response?.data?.title ||
+                           t('error_adding_callcenter');
+        
+        showAlert(errorMessage, "error");
       });
   };
 
@@ -165,7 +184,7 @@ const AddCallcenter = () => {
           component="h1"
           sx={{ fontWeight: "bold", mb: 1 }}
         >
-          Add User
+          {t('add_user')}
         </Typography>
         <Breadcrumbs aria-label="breadcrumb" sx={{ color: "text.secondary" }}>
           <Link
@@ -176,7 +195,7 @@ const AddCallcenter = () => {
             href="https://admin.asmaktharaa.io/team/stuffTeam"
           >
             <Home sx={{ mr: 0.5 }} fontSize="inherit" />
-            Dashboard
+            {t('dashboard')}
           </Link>
           <Link
             underline="hover"
@@ -186,10 +205,10 @@ const AddCallcenter = () => {
             rel="noopener noreferrer"
           >
             <People sx={{ mr: 0.5 }} fontSize="inherit" />
-            teams
+            {t('teams')}
           </Link>
           <Typography color="primary" sx={{ fontWeight: 600 }}>
-            Add User
+            {t('add_user')}
           </Typography>
         </Breadcrumbs>
       </Box>
@@ -205,7 +224,7 @@ const AddCallcenter = () => {
                 component="h2"
                 sx={{ mb: 2, fontWeight: "bold" }}
               >
-                User Information
+                {t('user_information')}
               </Typography>
               <Typography
                 variant="body2"
@@ -219,10 +238,25 @@ const AddCallcenter = () => {
                   <Grid item xs={12} width={"100%"}>
                     <TextField
                       fullWidth
-                      label="User Name"
+                      label={t('user_name')}
                       name="name"
-                      placeholder="Input User name"
+                      placeholder={t('input_user_name')}
                       value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+
+                  {/* Email */}
+                  <Grid item xs={12} width={"100%"}>
+                    <TextField
+                      fullWidth
+                      label={t('email')}
+                      name="email"
+                      type="email"
+                      placeholder={t('input_email')}
+                      value={formData.email}
                       onChange={handleInputChange}
                       required
                       variant="outlined"
@@ -233,9 +267,9 @@ const AddCallcenter = () => {
                   <Grid item xs={12} width={"100%"}>
                     <TextField
                       fullWidth
-                      label="Phone"
+                      label={t('phone')}
                       name="phone"
-                      placeholder="Input User Phone Number"
+                      placeholder={t('input_user_phone_number')}
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
@@ -243,28 +277,29 @@ const AddCallcenter = () => {
                     />
                   </Grid>
 
-                  {/* Salary */}
-                  {/* <Grid item xs={12} width={'100%'}> 
+                  {/* SSN */}
+                  <Grid item xs={12} width={"100%"}>
                     <TextField
                       fullWidth
-                      label="Salary"
-                      name="salary"
-                      type="number"
-                      placeholder="Input Price"
-                      value={formData.salary}
+                      label={t('ssn')}
+                      name="ssn"
+                      placeholder={t('input_ssn')}
+                      value={formData.ssn}
                       onChange={handleInputChange}
                       required
                       variant="outlined"
+                      inputProps={{ minLength: 14, maxLength: 14 }} 
+                      helperText={t('ssn_must_be_13_characters')}
                     />
-                  </Grid> */}
+                  </Grid>
 
                   {/* Address */}
                   <Grid item xs={12} width={"100%"}>
                     <TextField
                       fullWidth
-                      label="Address"
+                      label={t('address')}
                       name="address"
-                      placeholder="Input Address"
+                      placeholder={t('input_address')}
                       value={formData.address}
                       onChange={handleInputChange}
                       required
@@ -276,10 +311,10 @@ const AddCallcenter = () => {
                   <Grid item xs={12} width={"100%"}>
                     <TextField
                       fullWidth
-                      label="Password"
+                      label={t('password')}
                       name="password"
                       type="password"
-                      placeholder="Input Password"
+                      placeholder={t('input_password')}
                       value={formData.password}
                       onChange={handleInputChange}
                       required
@@ -300,7 +335,7 @@ const AddCallcenter = () => {
                         },
                       }}
                     >
-                      Save Callcenter
+                      {t('save_callcenter')}
                     </Button>
                   </Grid>
                 </Grid>
@@ -314,10 +349,10 @@ const AddCallcenter = () => {
           <Card sx={{ borderRadius: 2, boxShadow: 2, mb: 2 }}>
             <CardContent sx={{ padding: 2 }}>
               <Typography variant="h6" component="h3" sx={{ mb: 1, fontWeight: 'bold' }}>
-                Image Callcenter
+                {t('image_callcenter')}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Note : Format photos SVG, PNG, or JPG (Max size 4mb)
+                {t('note_format_photos_svg_png_jpg_max_size_4mb')}
               </Typography>
 
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -397,7 +432,7 @@ const AddCallcenter = () => {
                 sx={{ mt: 2 }}
                 onClick={handleSubmit}
               >
-                Save Callcenter
+                {t('save_callcenter')}
               </Button>
             </CardContent>
           </Card>
@@ -405,7 +440,7 @@ const AddCallcenter = () => {
           <Card sx={{ borderRadius: 2, boxShadow: 2 }}>
             <CardContent sx={{ padding: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                You can add up to 4 photos. SVG, PNG or JPG only.
+                {t('you_can_add_up_to_4_photos_svg_png_jpg_only')}
               </Typography>
             </CardContent>
           </Card>

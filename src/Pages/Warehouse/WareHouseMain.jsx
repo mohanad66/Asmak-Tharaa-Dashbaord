@@ -2,7 +2,10 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ConfirmAlert from "../Team/alert";
+import { useTranslation } from "react-i18next";
+
 const WarehouseDashboard = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("all");
   const [itemsData, setItemsData] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
@@ -21,7 +24,7 @@ const WarehouseDashboard = () => {
 
   let getData = () => {
     axios
-      .get("https://tharaa.premiumasp.net/api/Inventory/inventory", {
+      .get("api/Inventory/inventory", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -106,34 +109,34 @@ const WarehouseDashboard = () => {
         bg: "#e6fff0",
         color: "#0f7a3a",
         border: "#d6f7df",
-        text: "In Stock",
+        text: t('in_stock'),
       };
     } else if (item.status === 1) {
       return {
         bg: "#ffe9ee",
         color: "#c03a4b",
         border: "#f9d7dc",
-        text: "Out of Stock",
+        text: t('out_of_stock'),
       };
     } else if (item.status === 2) {
       return {
         bg: "#fff4e6",
         color: "#b66a00",
         border: "#fbebd8",
-        text: "Most Over",
+        text: t('most_over'),
       };
     } else {
       return {
         bg: "#fff0f3",
         color: "#e53e3e",
         border: "#fcd0d9",
-        text: "UnKnown",
+        text: t('unknown'),
       };
     }
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
+    if (!dateString) return t('n_a');
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -155,7 +158,7 @@ const WarehouseDashboard = () => {
 
     axios
       .delete(
-        `https://tharaa.premiumasp.net/api/Inventory/inventory/${deleteId}`,
+        `api/Inventory/inventory/${deleteId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -197,14 +200,14 @@ const WarehouseDashboard = () => {
                   style={{ background: "#e8f6ff", border: "1px solid #d0eafc" }}
                 >
                   <div className="small text-muted mb-2">
-                    Total Price Of Available
+                    {t('total_price_of_available')}
                   </div>
                   <div className="d-flex justify-content-between align-items-center">
                     <div className="h5 mb-0">
-                      {totalPriceOfAvilable.toLocaleString()} SAR
+                      {totalPriceOfAvilable.toLocaleString()} {t('sar')}
                     </div>
                     <div className="badge bg-light text-success border">
-                      Available
+                      {t('available')}
                     </div>
                   </div>
                 </div>
@@ -216,10 +219,10 @@ const WarehouseDashboard = () => {
                   style={{ background: "#fff0f3", border: "1px solid #f3d9e0" }}
                 >
                   <div className="small text-muted mb-2">
-                    Today price almost end
+                    {t('today_price_almost_end')}
                   </div>
                   <div className="h5 mb-0">
-                    {todayPriceAlmostEnd.toLocaleString()} SAR
+                    {todayPriceAlmostEnd.toLocaleString()} {t('sar')}
                   </div>
                 </div>
               </div>
@@ -230,7 +233,7 @@ const WarehouseDashboard = () => {
                   style={{ background: "#ecfff1", border: "1px solid #dff7e6" }}
                 >
                   <div className="small text-muted mb-2">
-                    Total Products Available
+                    {t('total_products_available')}
                   </div>
                   <div className="h5 mb-0">{totalProductsAvilable}</div>
                 </div>
@@ -242,7 +245,7 @@ const WarehouseDashboard = () => {
                   style={{ background: "#fff7ea", border: "1px solid #f2e3c9" }}
                 >
                   <div className="small text-muted mb-2">
-                    Total Products most over
+                    {t('total_products_most_over')}
                   </div>
                   <div className="h5 mb-0">{totalProductsMostOver}</div>
                 </div>
@@ -252,9 +255,9 @@ const WarehouseDashboard = () => {
             {/* Warehouse summary */}
             <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
               <div>
-                <h6 className="mb-1">ware house Summary</h6>
+                <h6 className="mb-1">{t('warehouse_summary')}</h6>
                 <div className="text-muted small">
-                  Overview of total orders,reurns,and return.
+                  {t('warehouse_summary_description')}
                 </div>
               </div>
 
@@ -265,11 +268,11 @@ const WarehouseDashboard = () => {
                     print();
                   }}
                 >
-                  <i className="bi bi-download"></i> Export
+                  <i className="bi bi-download"></i> {t('export')}
                 </button>
                 <Link to={"/warehouse/addProduct"}>
                   <button className="btn btn-primary btn-sm">
-                    New product <i className="bi bi-plus-lg ms-1"></i>
+                    {t('new_product')} <i className="bi bi-plus-lg ms-1"></i>
                   </button>
                 </Link>
               </div>
@@ -280,7 +283,7 @@ const WarehouseDashboard = () => {
               <div className="inner-search d-flex">
                 <input
                   className="form-control me-2"
-                  placeholder="Search for id, name, category, price"
+                  placeholder={t('search_placeholder_warehouse')}
                   value={searchTerm}
                   onChange={(e) => handleSearch(e.target.value)}
                 />
@@ -299,12 +302,11 @@ const WarehouseDashboard = () => {
                 >
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        activeTab === "all" ? "active" : ""
-                      }`}
+                      className={`nav-link ${activeTab === "all" ? "active" : ""
+                        }`}
                       onClick={() => setActiveTab("all")}
                     >
-                      All product{" "}
+                      {t('all_product')}{" "}
                       <span className="badge bg-primary ms-2">
                         {allProductsCount}
                       </span>
@@ -312,33 +314,30 @@ const WarehouseDashboard = () => {
                   </div>
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        activeTab === "in-stock" ? "active" : ""
-                      }`}
+                      className={`nav-link ${activeTab === "in-stock" ? "active" : ""
+                        }`}
                       onClick={() => setActiveTab("in-stock")}
                     >
-                      in stok{" "}
+                      {t('in_stock')}{" "}
                       <span className="text-muted ms-2">({inStockCount})</span>
                     </button>
                   </div>
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        activeTab === "most-over" ? "active" : ""
-                      }`}
+                      className={`nav-link ${activeTab === "most-over" ? "active" : ""
+                        }`}
                       onClick={() => setActiveTab("most-over")}
                     >
-                      its most over ({mostOverCount})
+                      {t('its_most_over')} ({mostOverCount})
                     </button>
                   </div>
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        activeTab === "out-of-stock" ? "active" : ""
-                      }`}
+                      className={`nav-link ${activeTab === "out-of-stock" ? "active" : ""
+                        }`}
                       onClick={() => setActiveTab("out-of-stock")}
                     >
-                      out of stock ({outOfStockCount})
+                      {t('out_of_stock')} ({outOfStockCount})
                     </button>
                   </div>
                 </div>
@@ -352,14 +351,14 @@ const WarehouseDashboard = () => {
                     <table className="table mb-0 align-middle">
                       <thead className="table-light">
                         <tr>
-                          <th>Product</th>
-                          <th>Category</th>
-                          <th>Quantity</th>
-                          <th>Data of income</th>
-                          <th>Price</th>
-                          <th>Total Value</th>
-                          <th>Status</th>
-                          <th className="text-end">Action</th>
+                          <th>{t('product')}</th>
+                          <th>{t('category')}</th>
+                          <th>{t('quantity')}</th>
+                          <th>{t('date_of_income')}</th>
+                          <th>{t('price')}</th>
+                          <th>{t('total_value')}</th>
+                          <th>{t('status')}</th>
+                          <th className="text-end">{t('action')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -371,19 +370,19 @@ const WarehouseDashboard = () => {
                               <tr key={item.id}>
                                 <td>
                                   <div className="fw-semibold">
-                                    {item.itemName || "N/A"}
+                                    {item.itemName || t('n_a')}
                                   </div>
                                 </td>
-                                <td>{item.category || "N/A"}</td>
+                                <td>{item.category || t('n_a')}</td>
                                 <td>{item.quantity}</td>
                                 <td>{formatDate(item.data_of_income)}</td>
                                 <td>
-                                  {item.price ? `${item.price} SAR` : "0 SAR"}
+                                  {item.price ? `${item.price} ${t('sar')}` : `0 ${t('sar')}`}
                                 </td>
                                 <td>
                                   {item.totalValue
-                                    ? `${item.totalValue} SAR`
-                                    : "0 SAR"}
+                                    ? `${item.totalValue} ${t('sar')}`
+                                    : `0 ${t('sar')}`}
                                 </td>
                                 <td>
                                   <span
@@ -419,8 +418,8 @@ const WarehouseDashboard = () => {
                           <tr>
                             <td colSpan="8" className="text-center py-4">
                               {searchTerm
-                                ? "No products found matching your search"
-                                : "No products available"}
+                                ? t('no_products_found')
+                                : t('no_products_available')}
                             </td>
                           </tr>
                         )}
@@ -439,16 +438,15 @@ const WarehouseDashboard = () => {
         open={showDeleteAlert}
         onClose={closeDeleteAlert}
         onConfirm={confirmDelete}
-        title="Delete Product"
+        title={t('delete_product')}
         message={
           itemToDelete
-            ? `Are you sure you want to delete the product "${
-                itemToDelete.itemName || "this product"
-              }"?`
-            : "Are you sure you want to delete this product?"
+            ? `${t('delete_confirmation_message')} "${itemToDelete.itemName || t('this_product')
+            }"?`
+            : t('delete_confirmation_message_general')
         }
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('delete')}
+        cancelText={t('cancel')}
         confirmColor="error"
         type="delete"
       />

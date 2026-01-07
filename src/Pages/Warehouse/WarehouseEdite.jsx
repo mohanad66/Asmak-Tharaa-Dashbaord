@@ -2,8 +2,10 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const WarehouseEdite = () => {
+  const { t } = useTranslation();
   let { id } = useParams();
 
   const [formData, setFormData] = useState({
@@ -14,7 +16,7 @@ const WarehouseEdite = () => {
     productCategory: "",
     salary: "",
     quantity: "",
-    statusProduct: "Select status product",
+    statusProduct: t('select_status_product'),
   });
 
   const handleInputChange = (e) => {
@@ -30,17 +32,17 @@ const WarehouseEdite = () => {
     e.preventDefault();
     axios
       .patch(
-        `https://tharaa.premiumasp.net/api/Inventory/inventory/${id}`,
+        `api/Inventory/inventory/${id}`,
         {
           itemName: formData.productName,
           companyName: formData.company,
           category: formData.productCategory,
           status:
-            formData.statusProduct === "In Stock"
+            formData.statusProduct === t('in_stock')
               ? 0
-              : formData.statusProduct === "Out of Stock"
-              ? 1
-              : 2,
+              : formData.statusProduct === t('out_of_stock')
+                ? 1
+                : 2,
           data_of_income: formData.dataIndastre,
           quantity: Number(formData.quantity),
           price: Number(formData.salary),
@@ -53,17 +55,18 @@ const WarehouseEdite = () => {
         }
       )
       .then((res) => {
-        toast.success("Done");
+        toast.success(t('done'));
         window.location.href = "/warehouse";
       })
       .catch((err) => {
         console.log(err);
+        toast.error(t('failed_to_update'));
       });
   };
 
   useEffect(() => {
     axios
-      .get(`https://tharaa.premiumasp.net/api/Inventory/inventory/${id}`, {
+      .get(`api/Inventory/inventory/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -82,15 +85,15 @@ const WarehouseEdite = () => {
           quantity: data.quantity.toString(),
           statusProduct:
             data.status === 0
-              ? "In Stock"
+              ? t('in_stock')
               : data.status === 1
-              ? "Out of Stock"
-              : "Returned",
+                ? t('out_of_stock')
+                : t('most_over'),
         });
       })
       .catch((err) => {
         console.log(err);
-        toast.error("Failed to load product data");
+        toast.error(t('failed_to_load'));
       });
   }, [id, token]);
 
@@ -103,9 +106,9 @@ const WarehouseEdite = () => {
       productCategory: "",
       salary: "",
       quantity: "",
-      statusProduct: "Select status product",
+      statusProduct: t('select_status_product'),
     });
-    alert("Changes discarded!");
+    alert(t('changes_discarded'));
   };
 
   return (
@@ -116,11 +119,11 @@ const WarehouseEdite = () => {
         <div className="d-flex">
           <main className="flex-grow-1 p-4">
             <div className="mb-3">
-              <h3 className="mb-1">Product</h3>
+              <h3 className="mb-1">{t('product')}</h3>
               <div className="small text-muted">
-                Dashboard › Warehouse ›{" "}
+                {t('dashboard')} › {t('warehouse')} ›{" "}
                 <span style={{ color: "#0b63c6", fontWeight: "600" }}>
-                  Edit Product
+                  {t('edit_product')}
                 </span>
               </div>
             </div>
@@ -130,23 +133,17 @@ const WarehouseEdite = () => {
               {/* Left: Product Information */}
               <div className="col-12 col-lg-8 w-100">
                 <div className="card p-4" style={{ borderRadius: "14px" }}>
-                  <h5 className="mb-3">Product Information</h5>
-                  {/*
-                  <p className="text-muted small">
-                    Lorem ipsum dolor sit amet consectetur. Non ac nulla aliquam
-                    aenean in velit mattis.
-                  </p>
-                    */}
+                  <h5 className="mb-3">{t('product_information')}</h5>
 
                   <form onSubmit={handleSaveChanges}>
                     <div className="mb-3">
                       <label className="form-label small text-muted">
-                        company
+                        {t('company')}
                       </label>
                       <input
                         className="form-control"
                         name="company"
-                        placeholder="Input no company"
+                        placeholder={t('input_company')}
                         value={formData.company}
                         onChange={handleInputChange}
                       />
@@ -154,12 +151,12 @@ const WarehouseEdite = () => {
 
                     <div className="mb-3">
                       <label className="form-label small text-muted">
-                        Product Name
+                        {t('product_name')}
                       </label>
                       <input
                         className="form-control"
                         name="productName"
-                        placeholder="Input product name"
+                        placeholder={t('input_product_name')}
                         value={formData.productName}
                         onChange={handleInputChange}
                         required
@@ -169,7 +166,7 @@ const WarehouseEdite = () => {
                     <div className="row g-3 mb-3">
                       <div className="col-12">
                         <label className="form-label small text-muted">
-                          Data indastre
+                          {t('data_indastre')}
                         </label>
                         <input
                           className="form-control"
@@ -180,39 +177,29 @@ const WarehouseEdite = () => {
                           onChange={handleInputChange}
                         />
                       </div>
-                      {/* <div className="col-6">
-                        <label className="form-label small text-muted">Data Expire</label>
-                        <input 
-                          className="form-control" 
-                          name="dataExpire"
-                          placeholder="25/8/2010"
-                          value={formData.dataExpire}
-                          onChange={handleInputChange}
-                        />
-                      </div> */}
                     </div>
 
                     <div className="row g-3 mb-3">
                       <div className="col-6">
                         <label className="form-label small text-muted">
-                          Product Category
+                          {t('product_category')}
                         </label>
                         <input
                           className="form-control"
                           name="productCategory"
-                          placeholder="category"
+                          placeholder={t('category')}
                           value={formData.productCategory}
                           onChange={handleInputChange}
                         />
                       </div>
                       <div className="col-6">
                         <label className="form-label small text-muted">
-                          salary
+                          {t('salary')}
                         </label>
                         <input
                           className="form-control"
                           name="salary"
-                          placeholder="Input Price"
+                          placeholder={t('input_price')}
                           value={formData.salary}
                           onChange={handleInputChange}
                           required
@@ -222,12 +209,12 @@ const WarehouseEdite = () => {
 
                     <div className="mb-3">
                       <label className="form-label small text-muted">
-                        Quantity
+                        {t('quantity')}
                       </label>
                       <input
                         className="form-control"
                         name="quantity"
-                        placeholder="Input Quantity"
+                        placeholder={t('input_quantity')}
                         value={formData.quantity}
                         onChange={handleInputChange}
                         required
@@ -236,7 +223,7 @@ const WarehouseEdite = () => {
 
                     <div className="mb-3">
                       <label className="form-label small text-muted">
-                        Status Product
+                        {t('status_product')}
                       </label>
                       <select
                         className="form-select"
@@ -244,19 +231,19 @@ const WarehouseEdite = () => {
                         value={formData.statusProduct}
                         onChange={handleInputChange}
                       >
-                        <option value="Select status product">
-                          Select status product
+                        <option value={t('select_status_product')}>
+                          {t('select_status_product')}
                         </option>
-                        <option value="In Stock">In Stock</option>
-                        <option value="Out of Stock">Out of Stock</option>
-                        <option value="Returned">Most Over</option>
+                        <option value={t('in_stock')}>{t('in_stock')}</option>
+                        <option value={t('out_of_stock')}>{t('out_of_stock')}</option>
+                        <option value={t('most_over')}>{t('most_over')}</option>
                       </select>
                     </div>
                     <button
                       className="btn btn-primary w-100"
                       onClick={handleSaveChanges}
                     >
-                      Save Product
+                      {t('save_product')}
                     </button>
                   </form>
                 </div>

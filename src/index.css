@@ -6,47 +6,53 @@ html {
 }
 
 .loginCon {
-  background-image: url("/DesktopBackground.jpg");
+  /* background-image: url("logo.jpg"); */
   background-size: contain;
   background-position: center;
+}
+
+.leftSideBar {
+  height: 100%;
 }
 
 .con2,
 .con2-v2 {
   max-width: 50%;
   margin: auto;
+  box-shadow: #000 1px 1px 10px;
 }
 
 @media (max-width: 900px) {
   .mainCon {
     flex-direction: column;
   }
-  
+
   .loginCon {
-    background-image: url("/MobileBackground.jpg");
+    /* background-image: url("logo.jpg"); */
     background-position: bottom;
   }
-  
+
   .con2 {
     margin-left: 0;
     max-width: 90%;
     padding-top: 0;
     margin: auto;
   }
-  
+
   .con2-v2 {
     max-width: 80%;
     margin: auto;
   }
-  
+
   .leftSideBar.mobile {
     animation: slideIn 0.3s ease-out;
   }
-  
+
   @keyframes slideIn {
     from {
       transform: translateX(-100%);
     }
+
     to {
       transform: translateX(0);
     }
@@ -57,7 +63,7 @@ html {
   .leftSideBar2 {
     padding: 15px 20px !important;
   }
-  
+
   .leftSideBar3 {
     gap: 8px !important;
   }
@@ -75,7 +81,7 @@ h6 {
 
 .header-row {
   background: #fff;
-  
+
 }
 
 .search-input:focus {
@@ -102,11 +108,13 @@ h6 {
     gap: 1rem;
     padding: 1rem;
   }
+
   .search-box,
   .search-and-actions {
     display: none !important;
   }
 }
+
 /* Responsive styles for MainHome */
 .stats-container {
   gap: 10px;
@@ -128,7 +136,7 @@ h6 {
   .stats-container {
     justify-content: flex-start;
   }
-  
+
   .stat-card {
     flex: 1 1 180px;
     min-width: 180px;
@@ -142,18 +150,18 @@ h6 {
     justify-content: flex-start;
     padding-bottom: 10px;
   }
-  
+
   .stat-card {
     flex: 0 0 auto;
     min-width: 100% !important;
 
   }
-  
+
   .charts-container {
     flex-direction: column;
   }
-  
-  .charts-container > div {
+
+  .charts-container>div {
     flex: 1 1 100%;
     min-width: 100%;
   }
@@ -164,17 +172,18 @@ h6 {
     min-width: 220px;
     padding: 8px;
   }
-  
+
   .stat-card p {
     font-size: 14px;
   }
-  
+
   .stat-card p[style*="font-size: 30px"] {
     font-size: 24px;
   }
 }
+
 @media print {
-  body > * {
+  body>* {
     visibility: hidden;
   }
 
@@ -186,23 +195,24 @@ h6 {
     width: 90% !important;
     max-height: 100%;
   }
-  
+
   .items {
     max-height: 100%;
   }
-  
+
   button {
     visibility: hidden;
   }
-  
+
   .LeftList {
     display: none;
   }
-  
+
   .HamburgerButton {
     display: none;
   }
-  .table{
+
+  .table {
     visibility: visible;
     position: absolute !important;
     top: 0 !important;
@@ -210,18 +220,22 @@ h6 {
     width: 90% !important;
     max-height: 100%;
   }
-  .table svg{
+
+  .table svg {
     fill: transparent;
   }
-  .print-area{
+
+  .print-area {
     visibility: visible;
     position: fixed;
     top: 0 !important;
     width: 100%;
     right: 0;
   }
-  .print-area .table th:last-of-type, .print-area .table td:last-of-type{
-    display: none ;
+
+  .print-area .table th:last-of-type,
+  .print-area .table td:last-of-type {
+    display: none;
   }
-  
+
 }

@@ -26,8 +26,10 @@ import ConfirmAlert from "./alert";
 // import { toast } from "react-toastify";
 import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import { useTranslation } from "react-i18next";
 
 const Users = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
@@ -36,7 +38,7 @@ const Users = () => {
 
   let getData = () => {
     axios
-      .get("https://tharaa.premiumasp.net/api/CallCenter", {
+      .get("/api/Users", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -48,12 +50,12 @@ const Users = () => {
           // console.log(res.data.data);
         } else {
           console.error("Invalid response format:", res);
-          toast.error("Failed to load data: Invalid response format");
+          toast.error(t('failed_to_load_data_invalid_format'));
         }
       })
       .catch((err) => {
         console.error("Error fetching data:", err);
-        toast.error("Failed to load callcenters data");
+        toast.error(t('failed_to_load_callcenters_data'));
       });
   };
 
@@ -81,7 +83,7 @@ const Users = () => {
 
   let deleteCallcenter = () => {
     axios
-      .delete(`https://tharaa.premiumasp.net/api/CallCenter/${deleteId}`, {
+      .delete(`/api/Users/${deleteId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -91,7 +93,7 @@ const Users = () => {
         if (res.data && res.data.message) {
           console.log(res.data.message);
         } else {
-          console.log("Callcenter deleted successfully");
+          console.log(t('callcenter_deleted_successfully'));
         }
         getData();
       })
@@ -100,11 +102,11 @@ const Users = () => {
 
         if (err.response && err.response.data) {
           console.log
-          (
-            err.response.data.message || "Failed to delete callcenter"
-          );
+            (
+              err.response.data.message || t('failed_to_delete_callcenter')
+            );
         } else {
-          console.log("Failed to delete callcenter");
+          console.log(t('failed_to_delete_callcenter'));
         }
       });
   };
@@ -153,7 +155,7 @@ const Users = () => {
           </Box>
           <Box>
             <Typography variant="body2" sx={{ color: "#666", margin: 0 }}>
-              Total Users
+              {t('total_users')}
             </Typography>
             <Typography
               variant="h5"
@@ -204,7 +206,7 @@ const Users = () => {
           </Box>
           <Box>
             <Typography variant="body2" sx={{ color: "#666", margin: 0 }}>
-              Total Orders
+              {t('total_orders')}
             </Typography>
             <Typography
               variant="h5"
@@ -258,7 +260,7 @@ const Users = () => {
           </Box>
           <Box>
             <Typography variant="body2" sx={{ color: "#666", margin: 0 }}>
-              Total Revenue
+              {t('total_revenue')}
             </Typography>
             <Typography
               variant="h5"
@@ -287,10 +289,10 @@ const Users = () => {
             marginBottom: 1,
           }}
         >
-          Users
+          {t('users')}
         </Typography>
         <Typography variant="subtitle1" sx={{ color: "#666" }}>
-          Dashboard ▶ Users
+          {t('dashboard')} ▶ {t('users')}
         </Typography>
       </Box>
 
@@ -307,7 +309,7 @@ const Users = () => {
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Search for id, name, phone number"
+          placeholder={t('search_for_id_name_phone_number')}
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
@@ -362,7 +364,7 @@ const Users = () => {
             }}
             onClick={print}
           >
-            Export
+            {t('export')}
           </Button>
           <Link to={"add"}>
             <Button
@@ -378,7 +380,7 @@ const Users = () => {
                 },
               }}
             >
-              Add
+              {t('add')}
             </Button>
           </Link>
         </Box>
@@ -399,22 +401,22 @@ const Users = () => {
           <TableHead sx={{ backgroundColor: "#f8f9fa" }}>
             <TableRow>
               <TableCell sx={{ fontWeight: "bold", color: "#333" }}>
-                Id
+                {t('id')}
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", color: "#333" }}>
-                Name
+                {t('name')}
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", color: "#333" }}>
-                Phone Number
+                {t('phone_number')}
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", color: "#333" }}>
-                Address
+                {t('address')}
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", color: "#333" }}>
-                Total Orders
+                {t('total_orders')}
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", color: "#333" }}>
-                Total Revenue
+                {t('total_revenue')}
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", color: "#333" }}></TableCell>
             </TableRow>
@@ -434,7 +436,7 @@ const Users = () => {
                     onConfirm={() => deleteCallcenter()}
                     onClose={() => {
                       setshowConfirmAlert(false);
-                      
+
                     }}
                   />
                 )}

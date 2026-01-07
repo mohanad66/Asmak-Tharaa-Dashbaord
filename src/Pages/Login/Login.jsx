@@ -1,10 +1,13 @@
 import Button from "@mui/joy/Button";
 import { useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
+
 
 function Login() {
   let [role, setRole] = useState("");
 
+  let [email, setEmail] = useState("");
   let [phone, setPhone] = useState("");
   let [password, setPassword] = useState("");
 
@@ -12,42 +15,63 @@ function Login() {
 
   const handleSubmit = async () => {
     axios
-      .post("https://tharaa.premiumasp.net/api/WebAuthentication/login", {
-        phoneNumber: phone,
+      .post("/api/Auth/login", {  // Added leading slash for proxy
+        email: email,
         password: password,
       })
       .then((res) => {
+        console.log("Login Response:", res.data);
+
         if (res.data?.statusCode === 200) {
-          localStorage.token = JSON.stringify(res.data.token);
+          // Store token
+          localStorage.setItem("token", JSON.stringify(res.data.token));
           let token = JSON.parse(localStorage.getItem("token"));
 
+          // Decode token
           const decodeToken = (token) => {
             const payload = token.split(".")[1];
             return JSON.parse(atob(payload));
           };
 
           let info = decodeToken(token);
+          console.log("Decoded Token Info:", info);
 
-          localStorage.role =
-            info[
-              "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-            ];
-          localStorage.id =
-            info[
-              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-            ];
-          localStorage.name =
-            info["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"];
+          // Store role
+          localStorage.setItem(
+            "role",
+            info["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+          );
 
-          localStorage.phoneNumber = phone;
-          localStorage.password = password;
+          // Optional: Store other user info if needed
+          // localStorage.setItem(
+          //   "id",
+          //   info["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]
+          // );
+          // localStorage.setItem(
+          //   "name",
+          //   info["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]
+          // );
+
+          // Redirect to dashboard
           window.location.href = "/";
+
         } else {
-          console.log(res.data.message);
-          alert(res.data.message);
+          console.error("Login failed:", res.data.message);
+          toast.error(res.data.message || "Login failed");
         }
       })
-      .catch((err) => alert(err));
+      .catch((err) => {
+        console.error("Login Error Details:", {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status
+        });
+
+        const errorMessage = err.response?.data?.message ||
+          err.response?.data?.title ||
+          "Login failed. Please check your credentials.";
+        toast.error(errorMessage);
+      });
   };
 
   return (
@@ -84,7 +108,7 @@ function Login() {
         }}
         className={role == "delivery" ? "con2-v2" : "con2"}
       >
-        <img src="/lightLogo.jpg" style={{ width: 150, height: 150 }} />
+        {/* <img src="/lightLogo.jpg" style={{ width: 150, height: 150 }} /> */}
         <div
           style={{
             display: "flex",
@@ -98,6 +122,29 @@ function Login() {
           }}
         >
           <div
+            style={{
+              width: "120%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+            }}
+          >
+            <label style={{ marginBottom: "5px" }}>Email:</label>
+            <input
+              type="email"
+              name="email"
+              required
+              style={{
+                border: "1px rgba(102, 102, 102, 0.35) solid",
+                borderRadius: "8px",
+                fontSize: "1em",
+                padding: "8px",
+                width: "100%",
+              }}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          {/* <div
             style={{
               width: "120%",
               display: "flex",
@@ -119,7 +166,7 @@ function Login() {
               }}
               onChange={(e) => setPhone(e.target.value)}
             />
-          </div>
+          </div> */}
 
           <div
             style={{

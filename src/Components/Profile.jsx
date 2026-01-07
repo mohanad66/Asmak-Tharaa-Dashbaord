@@ -28,62 +28,46 @@ import {
   LocationOn,
 } from "@mui/icons-material";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 const SimpleProfilePage = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [userData, setUserData] = useState({
-    name: localStorage?.name || "John Doe",
-    role: localStorage?.role || "Administrator",
+    name: localStorage?.name || t('john_doe'),
+    role: localStorage?.role || t('administrator'),
     phone: localStorage?.phoneNumber || "544636371",
-    address: localStorage?.address || "Riyadh, Saudi Arabia",
+    address: localStorage?.address || t('riyadh_saudi_arabia'),
     password: localStorage?.password || '', // Password will be empty initially for security
   });
 
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(userData);
-  // console.log(editData);
-  
   const [showPassword, setShowPassword] = useState(false);
-  const [snackbar, setSnackbar] = useState({ 
-    open: false, 
-    message: '', 
-    severity: 'success' 
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
   });
 
   const handleEdit = () => {
-    // setEditData({
-    //   ...userData,
-    //   password: "" // Clear password when starting to edit
-    // });
     setIsEditing(true);
   };
 
   const handleSave = () => {
-    // Basic validation
-    // if (editData.password && editData.password.length < 6) {
-    //   setSnackbar({
-    //     open: true,
-    //     message: 'Password must be at least 6 characters long',
-    //     severity: 'error'
-    //   });
-    //   return;
-    // }
-
     const token = JSON.parse(localStorage.token);
     const updateData = {
       callcenterName: editData.name,
       phoneNumber: editData.phone,
       address: editData.address,
-      ...(editData.password && { password: editData.password }) // Only include password if changed
+      ...(editData.password && { password: editData.password })
     };
-
-
 
     axios
       .put(
-        `https://tharaa.premiumasp.net/api/Admin/${Number(localStorage.id)}`,
+        `api/Admin/${Number(localStorage.id)}`,
         updateData,
         {
           headers: {
@@ -92,24 +76,22 @@ const SimpleProfilePage = () => {
         }
       )
       .then((res) => {
-        console.log(res.data);
-        
         // Update local storage with new data
         localStorage.name = editData.name;
         localStorage.phoneNumber = editData.phone;
         localStorage.address = editData.address;
-        
+
         // Update state
         setUserData({
           ...editData,
           password: "" // Clear password after saving
         });
-        
+
         setIsEditing(false);
-        
+
         setSnackbar({
           open: true,
-          message: 'Profile updated successfully!',
+          message: t('profile_updated_successfully'),
           severity: 'success'
         });
       })
@@ -117,7 +99,7 @@ const SimpleProfilePage = () => {
         console.error('Error updating profile:', error);
         setSnackbar({
           open: true,
-          message: 'Error updating profile. Please try again.',
+          message: t('error_updating_profile'),
           severity: 'error'
         });
       });
@@ -176,7 +158,7 @@ const SimpleProfilePage = () => {
           ) : (
             <TextField
               fullWidth
-              label="Full Name"
+              label={t('full_name')}
               value={editData.name}
               onChange={(e) => handleChange("name", e.target.value)}
               sx={{ mb: 2 }}
@@ -194,7 +176,7 @@ const SimpleProfilePage = () => {
             <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}>
               <Phone sx={{ color: "primary.main" }} />
               <Typography variant="h6" color="textSecondary">
-                Phone Number:
+                {t('phone_number')}:
               </Typography>
             </Box>
             {!isEditing ? (
@@ -204,7 +186,7 @@ const SimpleProfilePage = () => {
             ) : (
               <TextField
                 fullWidth
-                label="Phone Number"
+                label={t('phone_number')}
                 value={editData.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
                 size={isMobile ? "small" : "medium"}
@@ -218,7 +200,7 @@ const SimpleProfilePage = () => {
             <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}>
               <Security sx={{ color: "primary.main" }} />
               <Typography variant="h6" color="textSecondary">
-                Role:
+                {t('role')}:
               </Typography>
             </Box>
             {!isEditing ? (
@@ -228,29 +210,27 @@ const SimpleProfilePage = () => {
             ) : (
               <TextField
                 fullWidth
-                label="Role"
+                label={t('role')}
                 value={editData.role}
                 onChange={(e) => handleChange("role", e.target.value)}
                 size={isMobile ? "small" : "medium"}
                 sx={{ ml: 4 }}
-                disabled // Role might not be editable
+                disabled
               />
             )}
           </Grid>
 
-                {isEditing && (
-          
-          <Grid item xs={12} md={6}>
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}>
-              <LocationOn sx={{ color: "primary.main" }} />
-              <Typography variant="h6" color="textSecondary">
-                Address:
-              </Typography>
-            </Box>
-            
+          {isEditing && (
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}>
+                <LocationOn sx={{ color: "primary.main" }} />
+                <Typography variant="h6" color="textSecondary">
+                  {t('address')}:
+                </Typography>
+              </Box>
               <TextField
                 fullWidth
-                label="Address"
+                label={t('address')}
                 value={editData.address}
                 onChange={(e) => handleChange("address", e.target.value)}
                 size={isMobile ? "small" : "medium"}
@@ -258,8 +238,8 @@ const SimpleProfilePage = () => {
                 multiline
                 rows={2}
               />
-          </Grid>
-            )}
+            </Grid>
+          )}
 
           {/* Password - Only show in edit mode */}
           {isEditing && (
@@ -267,12 +247,12 @@ const SimpleProfilePage = () => {
               <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}>
                 <Security sx={{ color: "primary.main" }} />
                 <Typography variant="h6" color="textSecondary">
-                  New Password:
+                  {t('new_password')}:
                 </Typography>
               </Box>
               <TextField
                 fullWidth
-                label="New Password"
+                label={t('new_password')}
                 type={showPassword ? "text" : "password"}
                 value={editData.password}
                 onChange={(e) => handleChange("password", e.target.value)}
@@ -290,7 +270,7 @@ const SimpleProfilePage = () => {
                     </InputAdornment>
                   ),
                 }}
-                // helperText="Leave empty if you don't want to change password"
+                helperText={t('password_leave_empty')}
               />
             </Grid>
           )}
@@ -314,9 +294,9 @@ const SimpleProfilePage = () => {
               size={isMobile ? "medium" : "large"}
               sx={{ minWidth: isMobile ? "100%" : 200 }}
             >
-              Edit Profile
+              {t('edit_profile')}
             </Button>
-          ) :  isEditing ? (
+          ) : isEditing ? (
             <>
               <Button
                 variant="contained"
@@ -326,7 +306,7 @@ const SimpleProfilePage = () => {
                 size={isMobile ? "medium" : "large"}
                 sx={{ minWidth: isMobile ? "100%" : 150 }}
               >
-                Save Changes
+                {t('save_changes')}
               </Button>
               <Button
                 variant="outlined"
@@ -336,23 +316,23 @@ const SimpleProfilePage = () => {
                 size={isMobile ? "medium" : "large"}
                 sx={{ minWidth: isMobile ? "100%" : 150 }}
               >
-                Cancel
+                {t('cancel')}
               </Button>
             </>
-          ):null}
+          ) : null}
         </Box>
       </Paper>
 
       {/* Success/Error Message */}
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbar.severity} 
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
           sx={{ width: '100%' }}
         >
           {snackbar.message}

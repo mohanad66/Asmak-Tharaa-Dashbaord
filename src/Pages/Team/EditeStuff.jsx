@@ -14,8 +14,10 @@ import {
 } from "@mui/material";
 import { Home, People } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const EditStuff = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -26,7 +28,7 @@ const EditStuff = () => {
     salaryDeduction: 0,
     startDate: "",
   });
-  
+
   const [alert, setAlert] = useState({
     show: false,
     message: "",
@@ -35,14 +37,14 @@ const EditStuff = () => {
 
   useEffect(() => {
     const token = JSON.parse(localStorage.getItem("token"));
-    
+
     if (!id) {
-      showAlert("Invalid staff ID", "error");
+      showAlert(t('invalid_staff_id'), "error");
       return;
     }
 
     axios
-      .get(`https://tharaa.premiumasp.net/api/Stuff/${id}`, {
+      .get(`api/Stuff/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -51,7 +53,7 @@ const EditStuff = () => {
         const data = res.data.data;
         // تنسيق التاريخ ليظهر في حقل input type="date"
         const formattedDate = data.startDate ? data.startDate.split('T')[0] : "";
-        
+
         setFormData({
           fullName: data.fullName || "",
           position: data.position || "",
@@ -62,7 +64,7 @@ const EditStuff = () => {
         });
       })
       .catch((error) => {
-        showAlert("Failed to load staff data", "error");
+        showAlert(t('failed_to_load_staff_data'), "error");
         console.error("Error fetching staff:", error);
       });
   }, [id]);
@@ -88,7 +90,7 @@ const EditStuff = () => {
 
     // التحقق من الحقول المطلوبة
     if (!formData.fullName || !formData.position || !formData.startDate) {
-      showAlert("Please fill in all required fields (Name, Position, Start Date)", "error");
+      showAlert(t('please_fill_in_all_required_fields_name_position_start_date'), "error");
       return;
     }
 
@@ -96,7 +98,7 @@ const EditStuff = () => {
 
     axios
       .put(
-        `https://tharaa.premiumasp.net/api/Stuff/${id}`,
+        `api/Stuff/${id}`,
         {
           fullName: formData.fullName,
           position: formData.position,
@@ -113,14 +115,14 @@ const EditStuff = () => {
         }
       )
       .then((res) => {
-        showAlert("Staff member updated successfully!", "success");
+        showAlert(t('staff_member_updated_successfully'), "success");
         setTimeout(() => {
-          navigate("/team/stuffTeam");
+          navigate("team/stuffTeam");
         }, 1500);
       })
       .catch((error) => {
         showAlert(
-          error.response?.data?.message || "Error updating staff member",
+          error.response?.data?.message || t('error_updating_staff_member'),
           "error"
         );
         console.error("Error:", error);
@@ -142,7 +144,7 @@ const EditStuff = () => {
           component="h1"
           sx={{ fontWeight: "bold", mb: 1 }}
         >
-          Edit Staff Member
+          {t('edit_staff_member')}
         </Typography>
         <Breadcrumbs aria-label="breadcrumb" sx={{ color: "text.secondary" }}>
           <Link
@@ -152,7 +154,7 @@ const EditStuff = () => {
             sx={{ display: 'flex', alignItems: 'center' }}
           >
             <Home sx={{ mr: 0.5 }} fontSize="inherit" />
-            Dashboard
+            {t('dashboard')}
           </Link>
           <Link
             underline="hover"
@@ -161,10 +163,10 @@ const EditStuff = () => {
             sx={{ display: 'flex', alignItems: 'center' }}
           >
             <People sx={{ mr: 0.5 }} fontSize="inherit" />
-            Staff Team
+            {t('staff_team')}
           </Link>
           <Typography color="primary" sx={{ fontWeight: 600 }}>
-            Edit Staff Member
+            {t('edit_staff_member')}
           </Typography>
         </Breadcrumbs>
       </Box>
@@ -179,7 +181,7 @@ const EditStuff = () => {
                 component="h2"
                 sx={{ mb: 2, fontWeight: "bold" }}
               >
-                Staff Information
+                {t('staff_information')}
               </Typography>
 
               <Box component="form" onSubmit={handleSubmit}>
@@ -188,9 +190,9 @@ const EditStuff = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Full Name"
+                      label={t('full_name')}
                       name="fullName"
-                      placeholder="Input staff full name"
+                      placeholder={t('input_staff_full_name')}
                       value={formData.fullName}
                       onChange={handleInputChange}
                       required
@@ -202,9 +204,9 @@ const EditStuff = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Position"
+                      label={t('position')}
                       name="position"
-                      placeholder="Input position (e.g., Manager, Waiter)"
+                      placeholder={t('input_position_eg_manager_waiter')}
                       value={formData.position}
                       onChange={handleInputChange}
                       required
@@ -216,17 +218,17 @@ const EditStuff = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Age"
+                      label={t('age')}
                       name="age"
                       type="number"
-                      placeholder="Input age"
+                      placeholder={t('input_age')}
                       value={formData.age}
                       onChange={handleInputChange}
                       variant="outlined"
                       InputProps={{
-                        inputProps: { 
+                        inputProps: {
                           min: 18,
-                          max: 70 
+                          max: 70
                         }
                       }}
                     />
@@ -236,7 +238,7 @@ const EditStuff = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Start Date"
+                      label={t('start_date')}
                       name="startDate"
                       type="date"
                       value={formData.startDate}
@@ -253,17 +255,17 @@ const EditStuff = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Salary"
+                      label={t('salary')}
                       name="salary"
                       type="number"
-                      placeholder="Input salary"
+                      placeholder={t('input_salary')}
                       value={formData.salary}
                       onChange={handleInputChange}
                       variant="outlined"
                       InputProps={{
-                        inputProps: { 
+                        inputProps: {
                           min: 0,
-                          step: 0.01 
+                          step: 0.01
                         }
                       }}
                     />
@@ -273,17 +275,17 @@ const EditStuff = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Salary Deduction"
+                      label={t('salary_deduction')}
                       name="salaryDeduction"
                       type="number"
-                      placeholder="Input salary deduction"
+                      placeholder={t('input_salary_deduction')}
                       value={formData.salaryDeduction}
                       onChange={handleInputChange}
                       variant="outlined"
                       InputProps={{
-                        inputProps: { 
+                        inputProps: {
                           min: 0,
-                          step: 0.01 
+                          step: 0.01
                         }
                       }}
                     />
@@ -294,9 +296,9 @@ const EditStuff = () => {
                     <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
                       <Button
                         variant="outlined"
-                        onClick={() => navigate("/team/stuffTeam")}
+                        onClick={() => navigate("team/stuffTeam")}
                       >
-                        Cancel
+                        {t('cancel')}
                       </Button>
                       <Button
                         type="submit"
@@ -308,7 +310,7 @@ const EditStuff = () => {
                           },
                         }}
                       >
-                        Update Staff Member
+                        {t('update_staff_member')}
                       </Button>
                     </Box>
                   </Grid>

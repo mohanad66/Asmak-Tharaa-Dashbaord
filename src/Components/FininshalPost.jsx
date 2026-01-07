@@ -5,14 +5,14 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { 
-  FiDollarSign, 
-  FiCalendar, 
-  FiPackage, 
-  FiTruck, 
-  FiTool, 
-  FiCpu, 
-  FiCreditCard, 
+import {
+  FiDollarSign,
+  FiCalendar,
+  FiPackage,
+  FiTruck,
+  FiTool,
+  FiCpu,
+  FiCreditCard,
   FiFileText,
   FiCheckCircle,
   FiAlertCircle,
@@ -20,8 +20,10 @@ import {
   FiRefreshCw,
   FiSave
 } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 
 const FinancialManagementForm = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     date: new Date(),
     revenue: '',
@@ -52,12 +54,12 @@ const FinancialManagementForm = () => {
       parseFloat(formData.technology) || 0,
       parseFloat(formData.account) || 0
     ];
-    
+
     const totalExpenses = expenses.reduce((sum, expense) => sum + expense, 0);
     const revenue = parseFloat(formData.revenue) || 0;
     const netProfit = revenue - totalExpenses;
     const profitMargin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
-    
+
     setCalculation({
       totalExpenses,
       netProfit,
@@ -71,30 +73,30 @@ const FinancialManagementForm = () => {
         expense: totalExpenses.toString()
       }));
     }
-  }, [formData.buyProducts, formData.transportation, formData.repairs, 
-      formData.technology, formData.account, formData.revenue]);
+  }, [formData.buyProducts, formData.transportation, formData.repairs,
+  formData.technology, formData.account, formData.revenue]);
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.date) {
-      newErrors.date = 'Date is required';
+      newErrors.date = t('date_is_required');
     }
-    
+
     const revenue = parseFloat(formData.revenue);
     if (isNaN(revenue) || revenue < 0) {
-      newErrors.revenue = 'Revenue must be a positive number';
+      newErrors.revenue = t('revenue_must_be_positive_number');
     }
-    
+
     // Validate all numeric fields
     const numericFields = ['buyProducts', 'transportation', 'repairs', 'technology', 'account'];
     numericFields.forEach(field => {
       const value = parseFloat(formData[field]);
       if (formData[field] && (isNaN(value) || value < 0)) {
-        newErrors[field] = 'Must be a positive number';
+        newErrors[field] = t('must_be_positive_number');
       }
     });
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -105,7 +107,7 @@ const FinancialManagementForm = () => {
       ...prev,
       [name]: value
     }));
-    
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -119,7 +121,7 @@ const FinancialManagementForm = () => {
         ...prev,
         [name]: value
       }));
-      
+
       if (errors[name]) {
         setErrors(prev => ({ ...prev, [name]: '' }));
       }
@@ -131,7 +133,7 @@ const FinancialManagementForm = () => {
       ...prev,
       date: date
     }));
-    
+
     if (errors.date) {
       setErrors(prev => ({ ...prev, date: '' }));
     }
@@ -139,18 +141,18 @@ const FinancialManagementForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
-      toast.error('Please fix the errors in the form');
+      toast.error(t('please_fix_errors_in_form'));
       return;
     }
 
     setLoading(true);
     setResponse(null);
-    
+
     try {
       const token = JSON.parse(localStorage.getItem('token'));
-      
+
       // Prepare data for API
       const apiData = {
         date: formData.date.toISOString(),
@@ -163,9 +165,9 @@ const FinancialManagementForm = () => {
         account: parseFloat(formData.account) || 0,
         notes: formData.notes || ''
       };
-      
+
       const response = await axios.post(
-        'https://tharaa.premiumasp.net/api/FinancialManagement',
+        'api/FinancialManagement',
         apiData,
         {
           headers: {
@@ -174,31 +176,18 @@ const FinancialManagementForm = () => {
           }
         }
       );
-      
+
       setResponse({
         success: true,
         data: response.data,
         timestamp: new Date().toLocaleString(),
-        message: 'Financial record added successfully!'
+        message: t('financial_record_added_successfully')
       });
-      toast.success('Financial record added successfully!');
-      
-      // Reset form
-      // setFormData({
-      //   date: new Date(),
-      //   revenue: '',
-      //   expense: '',
-      //   buyProducts: '',
-      //   transportation: '',
-      //   repairs: '',
-      //   technology: '',
-      //   account: '',
-      //   notes: ''
-      // });
-      
+      toast.success(t('financial_record_added_successfully'));
+
     } catch (error) {
       console.error('Error submitting form:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to add financial record';
+      const errorMessage = error.response?.data?.message || error.message || t('failed_to_add_financial_record');
       toast.error(errorMessage);
       setResponse({
         success: false,
@@ -603,14 +592,14 @@ const FinancialManagementForm = () => {
       alignItems: 'center'
     },
     tipsCard: {
-      marginTop: '25px', 
-      padding: '15px', 
+      marginTop: '25px',
+      padding: '15px',
       backgroundColor: '#fef3c7',
       borderRadius: '10px',
       border: '2px solid #f59e0b'
     },
     tipsList: {
-      color: '#92400e', 
+      color: '#92400e',
       fontSize: '0.85rem',
       lineHeight: '1.5',
       paddingLeft: '15px',
@@ -682,14 +671,9 @@ const FinancialManagementForm = () => {
     }
   };
 
-  // تطبيق Media Queries بشكل ديناميكي
-  const getResponsiveStyle = (baseStyle, mediaStyles) => {
-    return baseStyle;
-  };
-
   return (
     <div style={styles.container}>
-      <ToastContainer 
+      <ToastContainer
         position="top-center"
         autoClose={4000}
         hideProgressBar={false}
@@ -706,32 +690,32 @@ const FinancialManagementForm = () => {
           maxWidth: '400px'
         }}
       />
-      
+
       <header style={styles.header}>
         <h1 style={styles.title}>
           <FiDollarSign size={30} />
-          Financial Management
+          {t('financial_management')}
         </h1>
         <p style={styles.subtitle}>
-          Track revenue, expenses, and financial performance
+          {t('track_revenue_expenses_financial_performance')}
         </p>
       </header>
 
       <div style={styles.mainGrid}>
         {/* Form Section */}
         <div style={styles.formCard}>
-          <div style={{...styles.sectionTitle, marginBottom: '25px'}}>
+          <div style={{ ...styles.sectionTitle, marginBottom: '25px' }}>
             <span style={styles.icon}>📊</span>
-            Financial Data Entry
+            {t('financial_data_entry')}
           </div>
-          
+
           <form onSubmit={handleSubmit}>
             <div style={styles.formGrid}>
               {/* Date Field */}
               <div style={styles.formGroup}>
                 <label style={styles.label}>
                   <FiCalendar size={16} />
-                  Date <span style={styles.required}>*</span>
+                  {t('date')} <span style={styles.required}>*</span>
                 </label>
                 <div style={{ position: 'relative' }}>
                   <FiCalendar style={styles.inputIcon} />
@@ -740,7 +724,7 @@ const FinancialManagementForm = () => {
                     onChange={handleDateChange}
                     dateFormat="MMM d, yyyy"
                     customInput={
-                      <input 
+                      <input
                         style={{
                           ...styles.input,
                           ...styles.datePicker,
@@ -761,7 +745,7 @@ const FinancialManagementForm = () => {
               <div style={styles.formGroup}>
                 <label style={styles.label}>
                   <FiDollarSign size={16} />
-                  Revenue (SAR) <span style={styles.required}>*</span>
+                  {t('revenue_sar')} <span style={styles.required}>*</span>
                 </label>
                 <div style={{ position: 'relative' }}>
                   <FiDollarSign style={styles.inputIcon} />
@@ -784,25 +768,24 @@ const FinancialManagementForm = () => {
                   </span>
                 )}
                 <p style={styles.infoText}>
-                  <FiInfo size={14} /> Total income
+                  <FiInfo size={14} /> {t('total_income')}
                 </p>
               </div>
 
               {/* Expenses Section */}
               <div style={{ gridColumn: '1 / -1', marginTop: '15px' }}>
-                <div style={{...styles.sectionTitle, marginBottom: '20px'}}>
+                <div style={{ ...styles.sectionTitle, marginBottom: '20px' }}>
                   <span style={styles.icon}>💰</span>
-                  Expense Breakdown
+                  {t('expense_breakdown')}
                 </div>
-                
+
                 <div style={styles.formGrid}>
                   {/* Buy Products */}
                   <div style={styles.formGroup}>
                     <label style={styles.label}>
-                      <FiPackage size={16} /> Products
+                      <FiPackage size={16} /> {t('products')}
                     </label>
                     <div style={{ position: 'relative' }}>
-                      {/* <FiDollarSign style={styles.inputIcon} /> */}
                       <input
                         type="text"
                         name="buyProducts"
@@ -826,10 +809,9 @@ const FinancialManagementForm = () => {
                   {/* Transportation */}
                   <div style={styles.formGroup}>
                     <label style={styles.label}>
-                      <FiTruck size={16} /> Transportation
+                      <FiTruck size={16} /> {t('transportation')}
                     </label>
                     <div style={{ position: 'relative' }}>
-                      {/* <FiDollarSign style={styles.inputIcon} /> */}
                       <input
                         type="text"
                         name="transportation"
@@ -853,10 +835,9 @@ const FinancialManagementForm = () => {
                   {/* Repairs */}
                   <div style={styles.formGroup}>
                     <label style={styles.label}>
-                      <FiTool size={16} /> Repairs
+                      <FiTool size={16} /> {t('repairs')}
                     </label>
                     <div style={{ position: 'relative' }}>
-                      {/* <FiDollarSign style={styles.inputIcon} /> */}
                       <input
                         type="text"
                         name="repairs"
@@ -880,10 +861,9 @@ const FinancialManagementForm = () => {
                   {/* Technology */}
                   <div style={styles.formGroup}>
                     <label style={styles.label}>
-                      <FiCpu size={16} /> Technology
+                      <FiCpu size={16} /> {t('technology')}
                     </label>
                     <div style={{ position: 'relative' }}>
-                      {/* <FiDollarSign style={styles.inputIcon} /> */}
                       <input
                         type="text"
                         name="technology"
@@ -907,10 +887,9 @@ const FinancialManagementForm = () => {
                   {/* Account */}
                   <div style={styles.formGroup}>
                     <label style={styles.label}>
-                      <FiCreditCard size={16} /> Account
+                      <FiCreditCard size={16} /> {t('account')}
                     </label>
                     <div style={{ position: 'relative' }}>
-                      {/* <FiDollarSign style={styles.inputIcon} /> */}
                       <input
                         type="text"
                         name="account"
@@ -926,7 +905,7 @@ const FinancialManagementForm = () => {
                     </div>
                     {errors.account && (
                       <span style={styles.errorText}>
-                        <FiAlertCircle size={14} /> 
+                        <FiAlertCircle size={14} />
                         {errors.account}
                       </span>
                     )}
@@ -938,18 +917,18 @@ const FinancialManagementForm = () => {
               <div style={{ gridColumn: '1 / -1' }}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <FiFileText size={16} /> Notes
+                    <FiFileText size={16} /> {t('notes')}
                   </label>
                   <textarea
                     name="notes"
                     value={formData.notes}
                     onChange={handleChange}
                     style={styles.textarea}
-                    placeholder="Add any additional notes..."
+                    placeholder={t('add_any_additional_notes')}
                     rows="3"
                   />
                   <p style={styles.infoText}>
-                    <FiInfo size={14} /> Optional notes
+                    <FiInfo size={14} /> {t('optional_notes')}
                   </p>
                 </div>
               </div>
@@ -964,16 +943,16 @@ const FinancialManagementForm = () => {
                 {loading ? (
                   <>
                     <Grid color="#ffffff" size={10} />
-                    Processing...
+                    {t('processing')}
                   </>
                 ) : (
                   <>
                     <FiSave size={18} />
-                    Save Record
+                    {t('save_record')}
                   </>
                 )}
               </button>
-              
+
               <button
                 type="button"
                 style={styles.resetButton}
@@ -991,11 +970,11 @@ const FinancialManagementForm = () => {
                   });
                   setErrors({});
                   setResponse(null);
-                  toast.info('Form cleared!');
+                  toast.info(t('form_cleared'));
                 }}
               >
                 <FiRefreshCw size={18} />
-                Clear Form
+                {t('clear_form')}
               </button>
             </div>
           </form>
@@ -1004,7 +983,7 @@ const FinancialManagementForm = () => {
             <div style={styles.loadingContainer}>
               <Grid color="#667eea" size={20} />
               <p style={{ marginTop: '15px', color: '#718096', fontSize: '1rem' }}>
-                Saving financial data...
+                {t('saving_financial_data')}
               </p>
             </div>
           )}
@@ -1016,13 +995,11 @@ const FinancialManagementForm = () => {
                 <div style={styles.responseTitle}>
                   {response.success ? (
                     <>
-                      {/* <FiCheckCircle size={20} /> */}
-                      Success!
+                      {t('success')}
                     </>
                   ) : (
                     <>
-                      {/* <FiAlertCircle size={20} /> */}
-                      Error
+                      {t('error')}
                     </>
                   )}
                 </div>
@@ -1030,54 +1007,6 @@ const FinancialManagementForm = () => {
                   {formatDate(response.timestamp)}
                 </div>
               </div>
-
-              {/* {response.success ? (
-                <div style={styles.responseBody}>
-                  <div style={styles.responseItem}>
-                    <span style={styles.responseLabel}>Status:</span>
-                    <span style={{...styles.responseValue, color: '#38a169'}}>
-                      ✓ Success
-                    </span>
-                  </div>
-                  
-                  {response.data && (
-                    <>
-                      <div style={styles.responseItem}>
-                        <span style={styles.responseLabel}>Revenue:</span>
-                        <span style={styles.responseValue}>
-                          {formatCurrency(response.data.revenue || 0)}
-                        </span>
-                      </div>
-                      
-                      <div style={styles.responseItem}>
-                        <span style={styles.responseLabel}>Expenses:</span>
-                        <span style={styles.responseValue}>
-                          {formatCurrency(response.data.expense || 0)}
-                        </span>
-                      </div>
-                      
-                      <div style={styles.responseItem}>
-                        <span style={styles.responseLabel}>Profit:</span>
-                        <span style={{
-                          ...styles.responseValue,
-                          color: (response.data.revenue || 0) - (response.data.expense || 0) >= 0 ? '#38a169' : '#e53e3e'
-                        }}>
-                          {formatCurrency((response.data.revenue || 0) - (response.data.expense || 0))}
-                        </span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div style={styles.responseBody}>
-                  <div style={styles.responseItem}>
-                    <span style={styles.responseLabel}>Error:</span>
-                    <span style={styles.responseValue}>
-                      {response.error}
-                    </span>
-                  </div>
-                </div>
-              )} */}
             </div>
           )}
         </div>
@@ -1085,32 +1014,31 @@ const FinancialManagementForm = () => {
         {/* Summary Section */}
         <div style={styles.summaryCard}>
           <h3 style={styles.summaryTitle}>
-            {/* <FiDollarSign size={24} /> */}
-            Summary
+            {t('summary')}
           </h3>
-          
+
           <div style={styles.calculationCard}>
             <div style={styles.calculationRow}>
               <span style={styles.calculationLabel}>
-                <FiDollarSign size={16} /> Revenue:
+                <FiDollarSign size={16} /> {t('revenue')}:
               </span>
-              <span style={{...styles.calculationValue, ...styles.positive}}>
+              <span style={{ ...styles.calculationValue, ...styles.positive }}>
                 {formatCurrency(parseFloat(formData.revenue) || 0)}
               </span>
             </div>
-            
+
             <div style={styles.calculationRow}>
               <span style={styles.calculationLabel}>
-                <FiTool size={16} /> Expenses:
+                <FiTool size={16} /> {t('expenses')}:
               </span>
-              <span style={{...styles.calculationValue, ...styles.negative}}>
+              <span style={{ ...styles.calculationValue, ...styles.negative }}>
                 {formatCurrency(calculation.totalExpenses)}
               </span>
             </div>
-            
+
             <div style={styles.calculationRow}>
               <span style={styles.calculationLabel}>
-                <FiCheckCircle size={16} /> Profit:
+                <FiCheckCircle size={16} /> {t('profit')}:
               </span>
               <span style={{
                 ...styles.calculationValue,
@@ -1119,59 +1047,59 @@ const FinancialManagementForm = () => {
                 {formatCurrency(calculation.netProfit)}
               </span>
             </div>
-            
+
             <div style={styles.profitMargin}>
               <FiInfo size={16} />
-              Margin: {calculation.profitMargin}%
+              {t('margin')}: {calculation.profitMargin}%
             </div>
           </div>
 
           <div style={{ marginTop: '25px' }}>
-            <div style={{...styles.sectionTitle, marginBottom: '12px'}}>
+            <div style={{ ...styles.sectionTitle, marginBottom: '12px' }}>
               <span style={styles.icon}>📋</span>
-              Expense Details
+              {t('expense_details')}
             </div>
-            
+
             <div style={styles.calculationCard}>
               <div style={styles.calculationRow}>
                 <span style={styles.calculationLabel}>
-                  <FiPackage size={14} /> Products:
+                  <FiPackage size={14} /> {t('products')}:
                 </span>
                 <span style={styles.calculationValue}>
                   {formatCurrency(parseFloat(formData.buyProducts) || 0)}
                 </span>
               </div>
-              
+
               <div style={styles.calculationRow}>
                 <span style={styles.calculationLabel}>
-                  <FiTruck size={14} /> Transport:
+                  <FiTruck size={14} /> {t('transport')}:
                 </span>
                 <span style={styles.calculationValue}>
                   {formatCurrency(parseFloat(formData.transportation) || 0)}
                 </span>
               </div>
-              
+
               <div style={styles.calculationRow}>
                 <span style={styles.calculationLabel}>
-                  <FiTool size={14} /> Repairs:
+                  <FiTool size={14} /> {t('repairs')}:
                 </span>
                 <span style={styles.calculationValue}>
                   {formatCurrency(parseFloat(formData.repairs) || 0)}
                 </span>
               </div>
-              
+
               <div style={styles.calculationRow}>
                 <span style={styles.calculationLabel}>
-                  <FiCpu size={14} /> Tech:
+                  <FiCpu size={14} /> {t('tech')}:
                 </span>
                 <span style={styles.calculationValue}>
                   {formatCurrency(parseFloat(formData.technology) || 0)}
                 </span>
               </div>
-              
+
               <div style={styles.calculationRow}>
                 <span style={styles.calculationLabel}>
-                  <FiCreditCard size={14} /> Account:
+                  <FiCreditCard size={14} /> {t('account')}:
                 </span>
                 <span style={styles.calculationValue}>
                   {formatCurrency(parseFloat(formData.account) || 0)}
@@ -1181,15 +1109,15 @@ const FinancialManagementForm = () => {
           </div>
 
           <div style={styles.tipsCard}>
-            <div style={{...styles.sectionTitle, color: '#92400e', marginBottom: '8px', fontSize: '1rem'}}>
+            <div style={{ ...styles.sectionTitle, color: '#92400e', marginBottom: '8px', fontSize: '1rem' }}>
               <span style={styles.icon}>💡</span>
-              Tips
+              {t('tips')}
             </div>
             <ul style={styles.tipsList}>
-              <li style={styles.tipsItem}>Expenses auto-calculated</li>
-              <li style={styles.tipsItem}>Currency in SAR</li>
-              <li style={styles.tipsItem}>Profit margin shown as %</li>
-              <li style={styles.tipsItem}>Date defaults to today</li>
+              <li style={styles.tipsItem}>{t('expenses_auto_calculated')}</li>
+              <li style={styles.tipsItem}>{t('currency_in_sar')}</li>
+              <li style={styles.tipsItem}>{t('profit_margin_shown_as_percent')}</li>
+              <li style={styles.tipsItem}>{t('date_defaults_to_today')}</li>
             </ul>
           </div>
         </div>

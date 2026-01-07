@@ -1,8 +1,10 @@
 import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const WarehouseAdd = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     company: "",
     productName: "",
@@ -11,7 +13,7 @@ const WarehouseAdd = () => {
     productCategory: "",
     salary: "",
     quantity: "",
-    statusProduct: "In Stock",
+    statusProduct: t('in_stock'),
   });
 
   const handleInputChange = (e) => {
@@ -22,66 +24,31 @@ const WarehouseAdd = () => {
     }));
   };
 
-  const handleRemoveImage = (index) => {
-    const newImages = [...images];
-    newImages[index] = {
-      ...newImages[index],
-      file: null,
-      preview: null,
-    };
-    setImages(newImages);
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!formData.productName || !formData.salary || !formData.quantity) {
-      alert("Please fill in all required fields");
+      alert(t('fill_required_fields'));
       return;
     }
 
-    // التحقق من وجود صورة واحدة على الأقل
-    // const hasImages = images.some(img => img.file !== null);
-    // if (!hasImages) {
-    //   alert('Please upload at least one product image');
-    //   return;
-    // }
-
-    console.log({
-      itemName: formData.productName,
-      companyName: formData.company,
-      category: formData.productCategory,
-      status:
-        formData.statusProduct === "In Stock"
-          ? 0
-          : formData.statusProduct === "Out of Stock"
-          ? 1
-          : formData.statusProduct === "Most Over"
-          ? 2
-          : 4,
-      data_of_income: formData.dataIndastre,
-      quantity: Number(formData.quantity),
-      price: Number(formData.salary),
-    });
-    //console.log('Images:', images);
-    //console.log(formData.statusProduct);
     let token = JSON.parse(localStorage.getItem("token"));
 
     axios
       .post(
-        `https://tharaa.premiumasp.net/api/Inventory/inventory`,
+        `api/Inventory/inventory`,
         {
           itemName: formData.productName,
           companyName: formData.company,
           category: formData.productCategory,
           status:
-            formData.statusProduct === "In Stock"
+            formData.statusProduct === t('in_stock')
               ? 0
-              : formData.statusProduct === "Out of Stock"
-              ? 1
-              : formData.statusProduct === "Most Over"
-              ? 2
-              : 4,
+              : formData.statusProduct === t('out_of_stock')
+                ? 1
+                : formData.statusProduct === t('most_over')
+                  ? 2
+                  : 4,
           data_of_income: formData.dataIndastre,
           quantity: Number(formData.quantity),
           price: Number(formData.salary),
@@ -104,21 +71,13 @@ const WarehouseAdd = () => {
           productCategory: "",
           salary: "",
           quantity: "",
-          statusProduct: "In Stock",
+          statusProduct: t('in_stock'),
         });
       })
-      .catch((err)=>{
-        // console.log(err);
-        toast.error(err.response.data.title)
-        
+      .catch((err) => {
+        toast.error(err.response.data.title || t('failed_to_add'))
       })
 
-    // setImages([
-    //   { id: 1, file: null, preview: null, label: "Photo 1" },
-    //   { id: 2, file: null, preview: null, label: "Photo 2" },
-    //   { id: 3, file: null, preview: null, label: "Photo 3" },
-    //   { id: 4, file: null, preview: null, label: "Photo 4" }
-    // ]);
   };
 
   return (
@@ -129,15 +88,13 @@ const WarehouseAdd = () => {
         <div className="d-flex">
           {/* المحتوى الرئيسي بدون الشريط الجانبي */}
           <main className="flex-grow-1 p-4">
-            {/* Top: search & actions */}
-
             {/* Breadcrumb + Title */}
             <div className="mb-3">
-              <h3 className="mb-1">Product</h3>
+              <h3 className="mb-1">{t('product')}</h3>
               <div className="small text-muted">
-                Dashboard › Warehouse ›{" "}
+                {t('dashboard')} › {t('warehouse')} ›{" "}
                 <span style={{ color: "#0b63c6", fontWeight: "600" }}>
-                  Add Product
+                  {t('add_product')}
                 </span>
               </div>
             </div>
@@ -147,21 +104,17 @@ const WarehouseAdd = () => {
               {/* Left: Product Information */}
               <div className="col-12 col-lg-8 w-100">
                 <div className="card p-4" style={{ borderRadius: "14px" }}>
-                  <h5 className="mb-3">Product Information</h5>
-                  {/* <p className="text-muted small">
-                    Lorem ipsum dolor sit amet consectetur. Non ac nulla aliquam
-                    aenean in velit mattis.
-                  </p> */}
+                  <h5 className="mb-3">{t('product_information')}</h5>
 
                   <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                       <label className="form-label small text-muted">
-                        company
+                        {t('company')}
                       </label>
                       <input
                         className="form-control"
                         name="company"
-                        placeholder="Input company name"
+                        placeholder={t('input_company_name')}
                         value={formData.company}
                         onChange={handleInputChange}
                       />
@@ -169,12 +122,12 @@ const WarehouseAdd = () => {
 
                     <div className="mb-3">
                       <label className="form-label small text-muted">
-                        Product Name
+                        {t('product_name')}
                       </label>
                       <input
                         className="form-control"
                         name="productName"
-                        placeholder="Input product name"
+                        placeholder={t('input_product_name')}
                         value={formData.productName}
                         onChange={handleInputChange}
                         required
@@ -184,7 +137,7 @@ const WarehouseAdd = () => {
                     <div className="row g-3 mb-3">
                       <div className="col-12">
                         <label className="form-label small text-muted">
-                          Data indastre
+                          {t('data_indastre')}
                         </label>
                         <input
                           className="form-control"
@@ -195,40 +148,30 @@ const WarehouseAdd = () => {
                           type="date"
                         />
                       </div>
-                      {/* <div className="col-6">
-                        <label className="form-label small text-muted">Data Expire</label>
-                        <input 
-                          className="form-control" 
-                          name="dataExpire"
-                          placeholder="25/8/2010"
-                          value={formData.dataExpire}
-                          onChange={handleInputChange}
-                        />
-                      </div> */}
                     </div>
 
                     <div className="row g-3 mb-3">
                       <div className="col-6">
                         <label className="form-label small text-muted">
-                          Product Category
+                          {t('product_category')}
                         </label>
                         <input
                           className="form-control"
                           name="productCategory"
-                          placeholder="category"
+                          placeholder={t('category')}
                           value={formData.productCategory}
                           onChange={handleInputChange}
                         />
                       </div>
                       <div className="col-6">
                         <label className="form-label small text-muted">
-                          Price
+                          {t('price')}
                         </label>
                         <input
                           className="form-control"
                           name="salary"
                           type="number"
-                          placeholder="Input Price"
+                          placeholder={t('input_price')}
                           value={formData.salary}
                           onChange={handleInputChange}
                           required
@@ -238,12 +181,12 @@ const WarehouseAdd = () => {
 
                     <div className="mb-3">
                       <label className="form-label small text-muted">
-                        Quantity
+                        {t('quantity')}
                       </label>
                       <input
                         className="form-control"
                         name="quantity"
-                        placeholder="Input Quantity"
+                        placeholder={t('input_quantity')}
                         value={formData.quantity}
                         onChange={handleInputChange}
                         required
@@ -253,7 +196,7 @@ const WarehouseAdd = () => {
 
                     <div className="mb-3">
                       <label className="form-label small text-muted">
-                        Status Product
+                        {t('status_product')}
                       </label>
                       <select
                         className="form-select"
@@ -261,101 +204,20 @@ const WarehouseAdd = () => {
                         value={formData.statusProduct}
                         onChange={handleInputChange}
                       >
-                        <option value="In Stock">In Stock</option>
-                        <option value="Out of Stock">Out of Stock</option>
-                        <option value="Most Over">Most Over</option>
+                        <option value={t('in_stock')}>{t('in_stock')}</option>
+                        <option value={t('out_of_stock')}>{t('out_of_stock')}</option>
+                        <option value={t('most_over')}>{t('most_over')}</option>
                       </select>
                     </div>
                     <button
                       className="btn btn-primary w-100"
                       onClick={handleSubmit}
                     >
-                      Save Product
+                      {t('save_product')}
                     </button>
                   </form>
                 </div>
               </div>
-
-              {/* Right: Image Product + Save */}
-              {/* <div className="col-12 col-lg-4">
-                <div className="card p-3 mb-3" style={{borderRadius: '14px'}}>
-                  <h5 className="mb-2">Image Product</h5>
-                  <div className="small text-muted mb-3">
-                    Note : Format photos SVG, PNG, or JPG (Max size 4mb)
-                  </div>
-
-                  <div className="d-flex gap-2 flex-wrap">
-                    {images.map((image, index) => (
-                      <div key={image.id} className="text-center">
-                        <label 
-                          className="upload-box d-flex flex-column align-items-center justify-content-center p-2"
-                          style={{
-                            width: '80px',
-                            height: '80px',
-                            border: image.preview ? '1px solid #e6e9ee' : '1px dashed #bcd7ff',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            overflow: 'hidden'
-                          }}
-                        >
-                          <input 
-                            type="file" 
-                            accept="image/svg+xml, image/png, image/jpeg, image/jpg"
-                            style={{display: 'none'}}
-                            onChange={(e) => handleImageUpload(index, e)}
-                          />
-                          {image.preview ? (
-                            <div className="position-relative">
-                              <img 
-                                src={image.preview} 
-                                alt={`product-${index}`}
-                                style={{
-                                  width: '60px',
-                                  height: '60px',
-                                  objectFit: 'cover',
-                                  borderRadius: '4px'
-                                }}
-                              />
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                style={{
-                                  width: '20px',
-                                  height: '20px',
-                                  padding: 0,
-                                  fontSize: '10px'
-                                }}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handleRemoveImage(index);
-                                }}
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ) : (
-                            <>
-                              <i className="bi bi-image" style={{fontSize: '18px', color: '#6b7280'}}></i>
-                              <div className="small text-muted mt-1">{image.label}</div>
-                            </>
-                          )}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="d-grid mt-4">
-                    
-                  </div>
-                </div>
-
-                {/* helper / notes card
-                <div className="card p-3" style={{borderRadius: '14px'}}>
-                  <div className="small text-muted">
-                    You can add up to 4 photos. SVG, PNG or JPG only.
-                  </div>
-                </div>
-              </div>*/}
             </div>
           </main>
         </div>

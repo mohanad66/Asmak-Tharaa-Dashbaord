@@ -2,19 +2,20 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDate } from "../../Contexts/DateContext";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const YearlyOrders = ({ period }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("all");
   const [ordersData, setOrdersData] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const { today, lastWeek, currentMonth } = useDate();
   let [Revenue, setRevenue] = useState(0);
   let [TotalOrders, setTotalOrders] = useState(0);
-  let [TotalLoss, setTotalLoss] = useState(0);
-  let [TotalExpenses, setTotalExpenses] = useState(0);
-  let [TotalProfit, setTotalProfit] = useState(0);
+  let [TotalSales, setTotalSales] = useState(0);
 
   const getStartDateByPeriod = (periodType) => {
     const todayDate = new Date(today);
@@ -39,50 +40,70 @@ const YearlyOrders = ({ period }) => {
 
   let token = JSON.parse(localStorage.getItem("token"));
 
+  // جلب إحصائيات الأوردرات
   useEffect(() => {
-    const startDate = getStartDateByPeriod(period);
-
     axios
-      .get(
-        `https://tharaa.premiumasp.net/api/FinancialManagement/Profit?From=${startDate}&To=${today}`,
-        {
+      .get(`api/BaseOrders/info`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        setTotalOrders(res.data.numberOfAllOrder || 0);
+        setRevenue(res.data.amountOfmonyToCompleted || 0);
+        setTotalSales(res.data.numberCompletedOfOrder || 0);
+      })
+      .catch((error) => {
+        console.error("Error fetching orders info:", error);
+      });
+  }, [token]);
+
+  // جلب جميع الأوردرات
+  useEffect(() => {
+    const fetchAllOrders = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get("api/BaseOrders", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+        });
+
+        if (response.data && Array.isArray(response.data.data)) {
+          const allOrders = response.data.data;
+          setOrdersData(allOrders);
+
+          // تصفية الأوردرات حسب الفترة
+          const startDate = getStartDateByPeriod(period);
+          const filteredOrdersByPeriod = allOrders.filter((order) =>
+            isDateInPeriod(order?.createdAt, period, startDate)
+          );
+
+          setFilteredOrders(filteredOrdersByPeriod);
+        } else {
+          console.error("Invalid response format:", response.data);
+          setOrdersData([]);
+          setFilteredOrders([]);
         }
-      )
-      .then((res) => {
-        const data = res?.data?.data;
-        const financialRecords = data?.financialRecords;
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        setOrdersData([]);
+        setFilteredOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        const totalRevenue = financialRecords?.reduce(
-          (sum, record) => sum + record.revenue,
-          0
-        );
+    fetchAllOrders();
+  }, [period, token]);
 
-        const totalExpenses = financialRecords?.reduce(
-          (sum, record) => sum + record.expense,
-          0
-        );
+  // دالة التحقق مما إذا كان التاريخ ضمن الفترة المحددة
+  const isDateInPeriod = (dateString, periodType, startDate) => {
+    if (!dateString) return false;
 
-        const actualNet = totalRevenue - totalExpenses;
-
-        const totalProfit = actualNet > 0 ? actualNet : 0;
-        const totalLoss = actualNet < 0 ? Math.abs(actualNet) : 0;
-
-        setRevenue(totalRevenue);
-        setTotalExpenses(totalExpenses);
-        setTotalProfit(totalProfit);
-        setTotalLoss(totalLoss);
-      })
-      .catch((error) => {
-        console.error("Error fetching financial data:", error);
-      });
-  }, [period]);
-
-  const isDateInPeriod = (dateString, periodType) => {
     const orderDate = new Date(dateString);
     const todayDate = new Date(today);
+    const start = new Date(startDate);
 
     const normalizeDate = (date) => {
       const normalized = new Date(date);
@@ -92,115 +113,108 @@ const YearlyOrders = ({ period }) => {
 
     const normalizedOrderDate = normalizeDate(orderDate);
     const normalizedToday = normalizeDate(todayDate);
+    const normalizedStart = normalizeDate(start);
 
-    switch (periodType) {
-      case "week":
-        const lastWeekDate = new Date(lastWeek);
-        const normalizedLastWeek = normalizeDate(lastWeekDate);
-        return (
-          normalizedOrderDate >= normalizedLastWeek &&
-          normalizedOrderDate <= normalizedToday
-        );
-
-      case "month":
-        const firstDayOfMonth = new Date(
-          todayDate.getFullYear(),
-          todayDate.getMonth(),
-          1
-        );
-        const normalizedFirstDayOfMonth = normalizeDate(firstDayOfMonth);
-        return (
-          normalizedOrderDate >= normalizedFirstDayOfMonth &&
-          normalizedOrderDate <= normalizedToday
-        );
-
-      case "year":
-        const firstDayOfYear = new Date(todayDate.getFullYear(), 0, 1);
-        const normalizedFirstDayOfYear = normalizeDate(firstDayOfYear);
-        return (
-          normalizedOrderDate >= normalizedFirstDayOfYear &&
-          normalizedOrderDate <= normalizedToday
-        );
-
-      default:
-        return true;
-    }
+    return (
+      normalizedOrderDate >= normalizedStart &&
+      normalizedOrderDate <= normalizedToday
+    );
   };
 
-  const getPaymentBadge = (ispaid) => {
-    switch (ispaid) {
-      case true:
+  // دالة الحصول على حالة الدفع
+  const getPaymentBadge = (paymentMethod) => {
+    switch (paymentMethod?.toLowerCase()) {
+      case "cash":
         return {
           bg: "#e9fff0",
           color: "#0f7a3a",
           border: "#dff7e6",
-          text: "Paid",
+          text: t('cash'),
         };
-      case false:
+      case "banktransfer":
+      case "bank_transfer":
+        return {
+          bg: "#e6f3ff",
+          color: "#0066cc",
+          border: "#d6e7ff",
+          text: t('bank_transfer'),
+        };
+      case "creditcard":
+      case "credit_card":
+        return {
+          bg: "#f0e6ff",
+          color: "#663399",
+          border: "#e6d6ff",
+          text: t('credit_card'),
+        };
+      default:
         return {
           bg: "#fff4e6",
           color: "#b66a00",
           border: "#fbebd8",
-          text: "Unpaid",
+          text: paymentMethod || t('unknown'),
         };
-      default:
+    }
+  };
+
+  // دالة الحصول على حالة الطلب
+  const getStatusBadge = (status) => {
+    switch (status?.toLowerCase()) {
+      case "waiting":
+        return {
+          bg: "#fff4e6",
+          color: "#b66a00",
+          border: "#fbebd8",
+          text: t('waiting'),
+        };
+      case "accepted":
+        return {
+          bg: "#e6fff0",
+          color: "#0f7a3a",
+          border: "#d6f7df",
+          text: t('accepted'),
+        };
+      case "rejected":
+        return {
+          bg: "#ffecec",
+          color: "#dc3545",
+          border: "#f7d0d6",
+          text: t('rejected'),
+        };
+      case "processing":
+        return {
+          bg: "#e6f3ff",
+          color: "#0066cc",
+          border: "#d6e7ff",
+          text: t('processing'),
+        };
+      case "completed":
         return {
           bg: "#e9fff0",
           color: "#0f7a3a",
           border: "#dff7e6",
-          text: "On Delivery",
+          text: t('completed'),
         };
-    }
-  };
-
-  const getStatusBadge = (state) => {
-    switch (state) {
-      case 0:
-        return {
-          bg: "#e6fff0",
-          color: "#695abfff",
-          border: "#d6f7df",
-          text: "Waiting",
-        };
-      case 1:
-        return {
-          bg: "#e6fff0",
-          color: "#402bffff",
-          border: "#d6f7df",
-          text: "Preparing",
-        };
-      case 2:
-        return {
-          bg: "#e6fff0",
-          color: "#4a1515ff",
-          border: "#d6f7df",
-          text: "Delivering",
-        };
-      case 3:
+      case "cancelled":
         return {
           bg: "#ffecec",
-          color: "green",
+          color: "#dc3545",
           border: "#f7d0d6",
-          text: "Done",
-        };
-      case 4:
-        return {
-          bg: "#dfe7ff",
-          color: "red",
-          border: "#dfe6ff",
-          text: "Cancelled",
+          text: t('cancelled'),
         };
       default:
         return {
-          bg: "#e6fff0",
-          color: "red",
-          border: "#d6f7df",
-          text: "UnKnown",
+          bg: "#f8f9fa",
+          color: "#6c757d",
+          border: "#e9ecef",
+          text: status || t('unknown'),
         };
     }
   };
 
+  // تنسيق التاريخ
   const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -209,137 +223,155 @@ const YearlyOrders = ({ period }) => {
     });
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // const callCenterRes = await axios.get(
-        //   "https://tharaa.premiumasp.net/api/CallcenterOrder",
-        //   { headers: { Authorization: `Bearer ${token}` } }
-        // );
-
-        const ordersRes = await axios.get(
-          "https://tharaa.premiumasp.net/api/Order",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        // const callCenterData = Array.isArray(callCenterRes?.data?.data)
-        //   ? callCenterRes.data.data
-        //   : [];
-
-        const ordersDataApi = Array.isArray(ordersRes?.data?.data)
-          ? ordersRes.data.data
-          : [];
-
-        const filteredOrdersByPeriod = ordersDataApi.filter((order) =>
-          isDateInPeriod(order?.createdAt, period)
-        );
-        console.log(ordersDataApi);
-        console.log(filteredOrdersByPeriod);
-
-        setOrdersData(filteredOrdersByPeriod);
-        setFilteredOrders(filteredOrdersByPeriod);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, [period]);
-
+  // دالة البحث
   const handleSearch = (term) => {
     setSearchTerm(term);
 
     if (!term.trim()) {
-      let filtered = ordersData;
-      switch (activeTab) {
-        case "waiting":
-          filtered = ordersData.filter((order) => order.state === 0);
-          break;
-        case "preparing":
-          filtered = ordersData.filter((order) => order.state === 1);
-          break;
-        case "delivering":
-          filtered = ordersData.filter((order) => order.state === 2);
-          break;
-        case "done":
-          filtered = ordersData.filter((order) => order.state === 3);
-          break;
-        case "cancelled":
-          filtered = ordersData.filter((order) => order.state === 4);
-          break;
-        default:
-          filtered = ordersData;
-      }
-      setFilteredOrders(filtered);
+      // إذا كان البحث فارغاً، نعرض جميع الأوردرات حسب التبويب النشط
+      filterOrdersByTab(ordersData, activeTab);
       return;
     }
 
-    const searchResults = ordersData.filter(
-      (order) =>
-        order.orderId.toString().includes(term) ||
-        (order.customerName &&
-          order.customerName.toLowerCase().includes(term.toLowerCase())) ||
-        (order.customerEmail &&
-          order.customerEmail.toLowerCase().includes(term.toLowerCase()))
-    );
+    const searchResults = ordersData.filter((order) => {
+      // البحث في رقم الطلب
+      if (order.orderNumber && order.orderNumber.toString().toLowerCase().includes(term.toLowerCase())) {
+        return true;
+      }
 
-    let filtered = searchResults;
-    switch (activeTab) {
+      // البحث في اسم العميل
+      if (order.customer && order.customer.name &&
+        order.customer.name.toLowerCase().includes(term.toLowerCase())) {
+        return true;
+      }
+
+      // البحث في بريد العميل
+      if (order.customer && order.customer.email &&
+        order.customer.email.toLowerCase().includes(term.toLowerCase())) {
+        return true;
+      }
+
+      // البحث في رقم العميل
+      if (order.customer && order.customer.id &&
+        order.customer.id.toString().includes(term)) {
+        return true;
+      }
+
+      // البحث في رقم الطلب (id)
+      if (order.id && order.id.toString().includes(term)) {
+        return true;
+      }
+
+      return false;
+    });
+
+    // تطبيق الفلتر حسب التبويب النشط على نتائج البحث
+    filterOrdersByTab(searchResults, activeTab);
+  };
+
+  // دالة فلترة الأوردرات حسب التبويب
+  const filterOrdersByTab = (orders, tab) => {
+    let filtered = orders;
+
+    switch (tab) {
       case "waiting":
-        filtered = searchResults.filter((order) => order.state === 0);
+        filtered = orders.filter((order) => order.status?.toLowerCase() === "waiting");
         break;
-      case "preparing":
-        filtered = searchResults.filter((order) => order.state === 1);
+      case "accepted":
+        filtered = orders.filter((order) => order.status?.toLowerCase() === "accepted");
         break;
-      case "delivering":
-        filtered = searchResults.filter((order) => order.state === 2);
+      case "rejected":
+        filtered = orders.filter((order) => order.status?.toLowerCase() === "rejected");
         break;
-      case "done":
-        filtered = searchResults.filter((order) => order.state === 3);
+      case "processing":
+        filtered = orders.filter((order) => order.status?.toLowerCase() === "processing");
+        break;
+      case "completed":
+        filtered = orders.filter((order) => order.status?.toLowerCase() === "completed");
         break;
       case "cancelled":
-        filtered = searchResults.filter((order) => order.state === 4);
+        filtered = orders.filter((order) => order.status?.toLowerCase() === "cancelled");
         break;
       default:
-        filtered = searchResults;
+        filtered = orders;
     }
 
     setFilteredOrders(filtered);
   };
 
+  // تحديث الفلترة عند تغيير التبويب
   useEffect(() => {
-    handleSearch(searchTerm);
+    filterOrdersByTab(ordersData, activeTab);
   }, [activeTab, ordersData]);
 
+  // حساب الإحصائيات
   const totalOrders = ordersData.length;
-  const waitingOrders = ordersData.filter((order) => order.state === 0).length;
-  const preparingOrders = ordersData.filter(
-    (order) => order.state === 1
+  const waitingOrders = ordersData.filter((order) =>
+    order.status?.toLowerCase() === "waiting"
   ).length;
-  const deliveringOrders = ordersData.filter(
-    (order) => order.state === 2
+  const acceptedOrders = ordersData.filter((order) =>
+    order.status?.toLowerCase() === "accepted"
   ).length;
-  const doneOrders = ordersData.filter((order) => order.state === 3).length;
-  const cancelledOrders = ordersData.filter(
-    (order) => order.state === 4
+  const rejectedOrders = ordersData.filter((order) =>
+    order.status?.toLowerCase() === "rejected"
+  ).length;
+  const processingOrders = ordersData.filter((order) =>
+    order.status?.toLowerCase() === "processing"
+  ).length;
+  const completedOrders = ordersData.filter((order) =>
+    order.status?.toLowerCase() === "completed"
+  ).length;
+  const cancelledOrders = ordersData.filter((order) =>
+    order.status?.toLowerCase() === "cancelled"
   ).length;
 
+  // حساب المنتجات الأكثر مبيعاً
+  const [topSellingProducts, setTopSellingProducts] = useState([]);
+
   useEffect(() => {
-    axios
-      .get(
-        "https://tharaa.premiumasp.net/api/Menu/product/top-selling?top=10",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    if (ordersData.length > 0) {
+      const productSales = {};
+
+      ordersData.forEach((order) => {
+        if (order.orderItems && Array.isArray(order.orderItems)) {
+          order.orderItems.forEach((item) => {
+            if (item.product && item.productId) {
+              const productId = item.productId;
+              const productName = item.product.name || `Product ${productId}`;
+
+              if (!productSales[productId]) {
+                productSales[productId] = {
+                  id: productId,
+                  name: productName,
+                  totalQuantity: 0,
+                  ordersCount: 0
+                };
+              }
+
+              productSales[productId].totalQuantity += (item.quantity || 0);
+              productSales[productId].ordersCount += 1;
+            }
+          });
         }
-      )
-      .then((res) => {
-        setTrendingItems(res.data.data);
       });
-  }, []);
-  const [trendingItems, setTrendingItems] = useState([]);
-  console.log(ordersData);
+
+      const sortedProducts = Object.values(productSales)
+        .sort((a, b) => b.totalQuantity - a.totalQuantity)
+        .slice(0, 5); // أفضل 5 منتجات
+
+      setTopSellingProducts(sortedProducts);
+    }
+  }, [ordersData]);
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "400px" }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">{t('loading')}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="outer-frame d-flex justify-content-center align-items-start py-4">
@@ -356,10 +388,10 @@ const YearlyOrders = ({ period }) => {
                     maxWidth: "90vw",
                   }}
                 >
-                  <div className="small text-muted mb-2">{period} income</div>
+                  <div className="small text-muted mb-2">{period} {t('revenue')}</div>
                   <div className="d-flex justify-content-between align-items-center">
                     <div className="h6 mb-0" style={{ whiteSpace: "nowrap" }}>
-                      {TotalProfit.toLocaleString()} SAR
+                      {Revenue?.toLocaleString()} {t('egp')}
                     </div>
                     <div
                       className="badge"
@@ -384,22 +416,8 @@ const YearlyOrders = ({ period }) => {
                     maxWidth: "90vw",
                   }}
                 >
-                  <div className="small text-muted mb-2">{period} Revenue</div>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div className="h6 mb-0" style={{ whiteSpace: "nowrap" }}>
-                      {Revenue?.toLocaleString()} SAR
-                    </div>
-                    <div
-                      className="badge"
-                      style={{
-                        background: "#e9fff0",
-                        color: "#0f7a3a",
-                        border: "1px solid #dff7e6",
-                      }}
-                    >
-                      +0%
-                    </div>
-                  </div>
+                  <div className="small text-muted mb-2">{t('total_orders')}</div>
+                  <div className="h6 mb-0">{TotalOrders || 0}</div>
                 </div>
               </div>
 
@@ -412,8 +430,8 @@ const YearlyOrders = ({ period }) => {
                     maxWidth: "90vw",
                   }}
                 >
-                  <div className="small text-muted mb-2">Total Orders</div>
-                  <div className="h6 mb-0">{totalOrders}</div>
+                  <div className="small text-muted mb-2">{t('completed_orders')}</div>
+                  <div className="h6 mb-0">{TotalSales || 0}</div>
                 </div>
               </div>
 
@@ -426,26 +444,26 @@ const YearlyOrders = ({ period }) => {
                     maxWidth: "90vw",
                   }}
                 >
-                  <div className="small text-muted mb-2">Best Selling</div>
-                  <div className="h6 mb-0">{trendingItems?.length || 0}</div>
+                  <div className="small text-muted mb-2">{t('best_selling')}</div>
+                  <div className="h6 mb-0">{topSellingProducts.length || 0}</div>
                 </div>
               </div>
             </div>
 
             {/* Page title */}
             <div className="mb-3">
-              <h4 className="mb-1">Orders</h4>
+              <h4 className="mb-1">{t('orders')}</h4>
               <div className="small text-muted">
-                Dashboard › Orders ›{" "}
+                {t('dashboard')} › {t('orders')} ›{" "}
                 <span style={{ color: "#0b63c6", fontWeight: "600" }}>
                   {period === "week"
-                    ? "Weekly"
+                    ? t('weekly')
                     : period === "month"
-                    ? "Monthly"
-                    : period === "year"
-                    ? "Yearly"
-                    : "All"}{" "}
-                  Orders
+                      ? t('monthly')
+                      : period === "year"
+                        ? t('yearly')
+                        : t('all')}{" "}
+                  {t('orders')}
                 </span>
               </div>
             </div>
@@ -457,7 +475,7 @@ const YearlyOrders = ({ period }) => {
               <div className="inner-search d-flex flex-grow-1">
                 <input
                   className="form-control me-2"
-                  placeholder="Search for id, name, email"
+                  placeholder={t('search_placeholder')}
                   value={searchTerm}
                   onChange={(e) => handleSearch(e.target.value)}
                 />
@@ -470,10 +488,10 @@ const YearlyOrders = ({ period }) => {
                 <button
                   className="btn btn-outline-secondary btn-sm"
                   onClick={() => {
-                    print();
+                    print()
                   }}
                 >
-                  <i className="bi bi-download"></i> Export
+                  <i className="bi bi-download"></i> {t('export')}
                 </button>
               </div>
             </div>
@@ -489,62 +507,65 @@ const YearlyOrders = ({ period }) => {
                 >
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        activeTab === "all" ? "active" : ""
-                      }`}
+                      className={`nav-link ${activeTab === "all" ? "active" : ""
+                        }`}
                       onClick={() => setActiveTab("all")}
                     >
-                      All Orders ({totalOrders})
+                      {t('all_orders')} ({totalOrders})
                     </button>
                   </div>
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        activeTab === "waiting" ? "active" : ""
-                      }`}
+                      className={`nav-link ${activeTab === "waiting" ? "active" : ""
+                        }`}
                       onClick={() => setActiveTab("waiting")}
                     >
-                      Waiting ({waitingOrders})
+                      {t('waiting')} ({waitingOrders})
                     </button>
                   </div>
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        activeTab === "preparing" ? "active" : ""
-                      }`}
-                      onClick={() => setActiveTab("preparing")}
+                      className={`nav-link ${activeTab === "accepted" ? "active" : ""
+                        }`}
+                      onClick={() => setActiveTab("accepted")}
                     >
-                      preparing ({preparingOrders})
+                      {t('accepted')} ({acceptedOrders})
                     </button>
                   </div>
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        activeTab === "delivering" ? "active" : ""
-                      }`}
-                      onClick={() => setActiveTab("delivering")}
+                      className={`nav-link ${activeTab === "rejected" ? "active" : ""
+                        }`}
+                      onClick={() => setActiveTab("rejected")}
                     >
-                      Delivering ({deliveringOrders})
+                      {t('rejected')} ({rejectedOrders})
                     </button>
                   </div>
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        activeTab === "done" ? "active" : ""
-                      }`}
-                      onClick={() => setActiveTab("done")}
+                      className={`nav-link ${activeTab === "processing" ? "active" : ""
+                        }`}
+                      onClick={() => setActiveTab("processing")}
                     >
-                      Done ({doneOrders})
+                      {t('processing')} ({processingOrders})
                     </button>
                   </div>
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        activeTab === "cancelled" ? "active" : ""
-                      }`}
+                      className={`nav-link ${activeTab === "completed" ? "active" : ""
+                        }`}
+                      onClick={() => setActiveTab("completed")}
+                    >
+                      {t('completed')} ({completedOrders})
+                    </button>
+                  </div>
+                  <div className="nav-item flex-shrink-0">
+                    <button
+                      className={`nav-link ${activeTab === "cancelled" ? "active" : ""
+                        }`}
                       onClick={() => setActiveTab("cancelled")}
                     >
-                      Cancelled ({cancelledOrders})
+                      {t('cancelled')} ({cancelledOrders})
                     </button>
                   </div>
                 </div>
@@ -558,13 +579,13 @@ const YearlyOrders = ({ period }) => {
                     <table className="table mb-0 align-middle">
                       <thead className="table-light">
                         <tr>
-                          <th>id</th>
-                          <th>Customer</th>
-                          <th>Price</th>
-                          <th>Date</th>
-                          <th>Payment</th>
-                          <th>Status</th>
-                          <th className="text-end">Action</th>
+                          <th>{t('order_number')}</th>
+                          <th>{t('customer')}</th>
+                          <th>{t('price')}</th>
+                          <th>{t('date')}</th>
+                          <th>{t('payment')}</th>
+                          <th>{t('status')}</th>
+                          <th className="text-end">{t('action')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -573,16 +594,21 @@ const YearlyOrders = ({ period }) => {
                             .slice()
                             .reverse()
                             .map((order, index) => {
-                              const paymentBadge = getPaymentBadge(
-                                order.ispaid
-                              );
-                              const statusBadge = getStatusBadge(order.state);
+                              const paymentBadge = getPaymentBadge(order.paymentMethod);
+                              const statusBadge = getStatusBadge(order.status);
+                              const customerName = order.customer?.name || "N/A";
+                              const customerEmail = order.customer?.email || "";
 
                               return (
-                                <tr key={index}>
-                                  <td>{order.orderId}</td>
-                                  <td>{order.customerName || "N/A"}</td>
-                                  <td>{order.totalPrice || 0} SAR</td>
+                                <tr key={order.id || index}>
+                                  <td>{order.id}</td>
+                                  <td>
+                                    <div>{customerName}</div>
+                                    {customerEmail && (
+                                      <small className="text-muted">{customerEmail}</small>
+                                    )}
+                                  </td>
+                                  <td>{order.totalPrice?.toLocaleString() || 0} {t('egp')}</td>
                                   <td>{formatDate(order.createdAt)}</td>
                                   <td>
                                     <span
@@ -609,9 +635,9 @@ const YearlyOrders = ({ period }) => {
                                     </span>
                                   </td>
                                   <td className="text-end">
-                                    <Link to={`/orderlist/${order.orderId}/mm`}>
+                                    <Link to={`/orderlist/${order.id}`}>
                                       <button className="btn btn-sm btn-outline-primary me-1">
-                                        View
+                                        {t('view')}
                                       </button>
                                     </Link>
                                   </td>
@@ -621,7 +647,7 @@ const YearlyOrders = ({ period }) => {
                         ) : (
                           <tr>
                             <td colSpan="7" className="text-center py-4">
-                              No orders found
+                              {t('no_orders_found')}
                             </td>
                           </tr>
                         )}

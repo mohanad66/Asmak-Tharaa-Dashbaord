@@ -4,8 +4,10 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import ConfirmAlert from "./alert";
+import { useTranslation } from "react-i18next";
 
 const TeamDelivery = () => {
+  const { t } = useTranslation();
   let token = JSON.parse(localStorage.getItem("token"));
   const [deliveryStaff, setDeliveryStaff] = useState([]);
   const [filteredStaff, setFilteredStaff] = useState([]);
@@ -14,11 +16,10 @@ const TeamDelivery = () => {
   const [stateFilter, setStateFilter] = useState("all");
 
   console.log(filteredStaff);
-  
 
   useEffect(() => {
     axios
-      .get("https://tharaa.premiumasp.net/api/Delivery/delivery-guys", {
+      .get("api/Delivery/delivery-guys", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -87,7 +88,7 @@ const TeamDelivery = () => {
 
     axios
       .delete(
-        `https://tharaa.premiumasp.net/api/Delivery/delivery-guys/${deleteId}`,
+        `api/Delivery/delivery-guys/${deleteId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -99,7 +100,7 @@ const TeamDelivery = () => {
         if (res.data && res.data.message) {
           console.log(res.data.message);
         } else {
-          console.log("Callcenter deleted successfully");
+          console.log(t('callcenter_deleted_successfully'));
         }
         getData();
       })
@@ -108,10 +109,10 @@ const TeamDelivery = () => {
 
         if (err.response && err.response.data) {
           console.log(
-            err.response.data.message || "Failed to delete callcenter"
+            err.response.data.message || t('failed_to_delete_callcenter')
           );
         } else {
-          console.log("Failed to delete callcenter");
+          console.log(t('failed_to_delete_callcenter'));
         }
       });
   };
@@ -132,12 +133,12 @@ const TeamDelivery = () => {
                   style={{ border: "1px solid #000", borderRadius: "6.82px" }}
                 >
                   <div className="small text-muted mb-2">
-                    number of delivery
+                    {t('number_of_delivery')}
                   </div>
                   <div className="d-flex justify-content-between align-items-center">
                     <div className="h5 mb-0">{deliveryStaff?.length || 0}</div>
                     <div className="badge bg-light text-success border">
-                      available
+                      {t('available')}
                     </div>
                   </div>
                 </div>
@@ -149,7 +150,7 @@ const TeamDelivery = () => {
                   style={{ border: "1px solid #000", borderRadius: "6.82px" }}
                 >
                   <div className="small text-muted mb-2">
-                    total salary form delivery
+                    {t('total_salary_form_delivery')}
                   </div>
                   <div className="h5 mb-0">
                     {deliveryStaff?.reduce(
@@ -166,7 +167,9 @@ const TeamDelivery = () => {
                   className="stat-card p-3"
                   style={{ border: "1px solid #000", borderRadius: "6.82px" }}
                 >
-                  <div className="small text-muted mb-2">Active Delivery</div>
+                  <div className="small text-muted mb-2">
+                    {t('active_delivery')}
+                  </div>
                   <div className="h5 mb-0">
                     {deliveryStaff?.filter((staff) => staff.isActive).length ||
                       0}
@@ -179,7 +182,9 @@ const TeamDelivery = () => {
                   className="stat-card p-3"
                   style={{ border: "1px solid #000", borderRadius: "6.82px" }}
                 >
-                  <div className="small text-muted mb-2">Busy Delivery</div>
+                  <div className="small text-muted mb-2">
+                    {t('busy_delivery')}
+                  </div>
                   <div className="h5 mb-0">
                     {deliveryStaff?.filter((staff) => staff.state === "busy")
                       .length || 0}
@@ -191,9 +196,9 @@ const TeamDelivery = () => {
             {/* Staff summary header - محسن للريسبونسف */}
             <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
               <div>
-                <h6 className="mb-1">Delivery summery</h6>
+                <h6 className="mb-1">{t('delivery_summery')}</h6>
                 <div className="text-muted small">
-                  Overview of Delivery Guys.
+                  {t('overview_of_delivery_guys')}
                 </div>
               </div>
 
@@ -202,11 +207,13 @@ const TeamDelivery = () => {
                   className="btn btn-outline-secondary btn-sm"
                   onClick={print}
                 >
-                  <i className="bi bi-download"></i> Export
+                  <i className="bi bi-download"></i> {t('export')}
                 </button>
                 <Link to={"/team/addDelivery"}>
                   <button className="btn btn-primary btn-sm">
-                    <span className="d-none d-md-inline">New Delivery</span>
+                    <span className="d-none d-md-inline">
+                      {t('new_delivery')}
+                    </span>
                     <i className="bi bi-plus-lg ms-1"></i>
                   </button>
                 </Link>
@@ -218,7 +225,7 @@ const TeamDelivery = () => {
               <div className="inner-search d-flex">
                 <input
                   className="form-control me-2"
-                  placeholder="Search for id, name, phone"
+                  placeholder={t('search_for_id_name_phone')}
                   value={searchTerm}
                   onChange={handleSearch}
                 />
@@ -237,12 +244,11 @@ const TeamDelivery = () => {
                 >
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        stateFilter === "all" ? "active" : ""
-                      }`}
+                      className={`nav-link ${stateFilter === "all" ? "active" : ""
+                        }`}
                       onClick={() => handleStateFilter("all")}
                     >
-                      All Delivery{" "}
+                      {t('all_delivery')}{" "}
                       <span className="badge bg-primary ms-2">
                         {tabStats.allCount || 0}
                       </span>
@@ -250,22 +256,20 @@ const TeamDelivery = () => {
                   </div>
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        stateFilter === "free" ? "active" : ""
-                      }`}
+                      className={`nav-link ${stateFilter === "free" ? "active" : ""
+                        }`}
                       onClick={() => handleStateFilter("free")}
                     >
-                      Free ({tabStats.free || 0})
+                      {t('free')} ({tabStats.free || 0})
                     </button>
                   </div>
                   <div className="nav-item flex-shrink-0">
                     <button
-                      className={`nav-link ${
-                        stateFilter === "in_progress" ? "active" : ""
-                      }`}
+                      className={`nav-link ${stateFilter === "in_progress" ? "active" : ""
+                        }`}
                       onClick={() => handleStateFilter("in_progress")}
                     >
-                      on Progress ({tabStats.onprogress || 0})
+                      {t('on_progress')} ({tabStats.onprogress || 0})
                     </button>
                   </div>
                 </div>
@@ -280,13 +284,17 @@ const TeamDelivery = () => {
                     <table className="table mb-0 align-middle">
                       <thead className="table-light">
                         <tr>
-                          <th>Id</th>
-                          <th>Name</th>
-                          <th className="d-none d-md-table-cell">Phone</th>
-                          <th className="d-none d-sm-table-cell">Position</th>
-                          <th>Salary</th>
-                          <th>State</th>
-                          <th className="text-end">Action</th>
+                          <th>{t('id')}</th>
+                          <th>{t('name')}</th>
+                          <th className="d-none d-md-table-cell">
+                            {t('phone')}
+                          </th>
+                          <th className="d-none d-sm-table-cell">
+                            {t('position')}
+                          </th>
+                          <th>{t('salary')}</th>
+                          <th>{t('state')}</th>
+                          <th className="text-end">{t('action')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -307,18 +315,6 @@ const TeamDelivery = () => {
                               </td>
                               <td>
                                 <div className="d-flex align-items-center gap-2">
-                                  {/* {deliveryGuy.driverPhotoUrl !== "string" && (
-                                  <img
-                                    src={deliveryGuy.driverPhotoUrl}
-                                    alt={deliveryGuy.driverName}
-                                    className="avatar-sm rounded-circle"
-                                    style={{
-                                      width: "32px",
-                                      height: "32px",
-                                      objectFit: "cover",
-                                    }}
-                                  />
-                                )} */}
                                   <div
                                     className="text-truncate"
                                     style={{ maxWidth: "120px" }}
@@ -331,24 +327,25 @@ const TeamDelivery = () => {
                                 {deliveryGuy.driverPhone}
                               </td>
                               <td className="d-none d-sm-table-cell">
-                                Delivery
+                                {t('delivery')}
                               </td>
                               <td>{deliveryGuy.salary} SAR</td>
                               <td>
                                 <span
-                                  className={`badge ${
-                                    deliveryGuy.state === "free"
-                                      ? "bg-success"
-                                      : deliveryGuy.state === "in_progress"
+                                  className={`badge ${deliveryGuy.state === "free"
+                                    ? "bg-success"
+                                    : deliveryGuy.state === "in_progress"
                                       ? "bg-warning"
                                       : "bg-secondary"
-                                  }`}
+                                    }`}
                                 >
                                   {deliveryGuy.state}
                                 </span>
                               </td>
                               <td className="text-end">
-                                <Link to={`/team/deliveryTeam/Edit/${deliveryGuy.driverId}`}>
+                                <Link
+                                  to={`/team/deliveryTeam/Edit/${deliveryGuy.driverId}`}
+                                >
                                   <button className="btn btn-sm btn-outline-secondary me-1">
                                     <i className="bi bi-pencil"></i>
                                   </button>
@@ -371,7 +368,7 @@ const TeamDelivery = () => {
                               colSpan="7"
                               className="text-center py-4 text-muted"
                             >
-                              No delivery staff found matching your criteria
+                              {t('no_delivery_staff_found_matching_your_criteria')}
                             </td>
                           </tr>
                         )}
@@ -385,8 +382,9 @@ const TeamDelivery = () => {
             {/* Pagination or results info */}
             <div className="d-flex justify-content-between align-items-center mt-3">
               <div className="text-muted small">
-                Showing {filteredStaff?.length || 0} of{" "}
-                {deliveryStaff?.length || 0} delivery staff
+                {t('showing')} {filteredStaff?.length || 0}{" "}
+                {t('of')} {deliveryStaff?.length || 0}{" "}
+                {t('delivery_staff')}
               </div>
             </div>
           </main>

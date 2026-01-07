@@ -29,6 +29,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import axios from "axios";
 import { useDate } from "../../Contexts/DateContext";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const DashboardContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1),
@@ -113,6 +114,7 @@ const ChartPaper = styled(Paper)(({ theme }) => ({
 }));
 
 const RevenueDashboard = () => {
+  const { t } = useTranslation();
   const { today, lastWeek, currentMonth } = useDate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -137,7 +139,7 @@ const RevenueDashboard = () => {
 
   useEffect(() => {
     axios
-      .get("https://tharaa.premiumasp.net/api/Customer/all", {
+      .get("api/Customer/all", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -158,7 +160,7 @@ const RevenueDashboard = () => {
   useEffect(() => {
     axios
       .get(
-        `https://tharaa.premiumasp.net/api/CallcenterOrder/GetOrderDate?from=${lastWeek}&to=${today}`,
+        `/api/UsersOrder/GetOrderDate?from=${lastWeek}&to=${today}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -182,7 +184,7 @@ const RevenueDashboard = () => {
     const fetchFinancialData = async () => {
       try {
         const response = await axios.get(
-          `https://tharaa.premiumasp.net/api/FinancialManagement/Profit?From=${lastWeek}&To=${today}`,
+          `api/FinancialManagement/Profit?From=${lastWeek}&To=${today}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -230,10 +232,10 @@ const RevenueDashboard = () => {
       try {
         // جلب بيانات الطلبات من كلا المصدرين
         const [callCenterRes, mobileRes] = await Promise.all([
-          axios.get("https://tharaa.premiumasp.net/api/CallcenterOrder", {
+          axios.get("/api/UsersOrder", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("https://tharaa.premiumasp.net/api/Order", {
+          axios.get("api/Order", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -244,10 +246,6 @@ const RevenueDashboard = () => {
         // دمج كل الاوردرات
         const mergedAllOrders = [...allCallCenterOrders, ...allMobileOrders];
         setAllOrders(mergedAllOrders);
-
-        console.log("All orders count:", mergedAllOrders.length);
-        console.log("Call center orders:", allCallCenterOrders.length);
-        console.log("Mobile orders:", allMobileOrders.length);
 
         // ترتيب الطلبات حسب التاريخ (الأحدث أولاً) وأخذ أول 5 طلبات للعرض الحديث
         const sortedRecentOrders = mergedAllOrders
@@ -263,11 +261,10 @@ const RevenueDashboard = () => {
               month: "long",
               day: "numeric",
             }),
-            amount: `${order.totalPrice || order.total || 0} SAR`,
+            amount: `${order.totalPrice || order.total || 0} ${t('sar')}`,
             status: getOrderStatus(order.state),
           }));
 
-        console.log("Recent orders:", sortedRecentOrders);
         setRecentOrders(sortedRecentOrders);
       } catch (error) {
         console.error("Error fetching all orders:", error);
@@ -320,17 +317,17 @@ const RevenueDashboard = () => {
   const getOrderStatus = (state) => {
     switch (state) {
       case 0:
-        return "Waiting";
+        return t('waiting');
       case 1:
-        return "Preparing";
+        return t('preparing');
       case 2:
-        return "Delivering";
+        return t('delivering');
       case 3:
-        return "Completed";
+        return t('completed');
       case 4:
-        return "Cancelled";
+        return t('cancelled');
       default:
-        return "Pending";
+        return t('pending');
     }
   };
 
@@ -391,7 +388,7 @@ const RevenueDashboard = () => {
   if (loading) {
     return (
       <DashboardContainer>
-        <Typography>Loading...</Typography>
+        <Typography>{t('loading')}</Typography>
       </DashboardContainer>
     );
   }
@@ -407,19 +404,7 @@ const RevenueDashboard = () => {
         gap={isMobile ? 2 : 0}
         mb={3}
       >
-        <Breadcrumb>Dashboard › Total Revenue › All Revenue</Breadcrumb>
-        {/* <Box
-          display="flex"
-          gap={1}
-          flexWrap={isSmallMobile ? "wrap" : "nowrap"}
-          width={isMobile ? "100%" : "auto"}
-        >
-          {["this year", "this month", "this Week", "today"].map((tab) => (
-            <TabButton key={tab} selected={tab === "this year"}>
-              {isSmallMobile ? tab.split(" ")[1] : tab}
-            </TabButton>
-          ))}
-        </Box> */}
+        <Breadcrumb>{t('dashboard')} › {t('total_revenue')} › {t('all_revenue')}</Breadcrumb>
       </Box>
 
       {/* Statistics Cards */}
@@ -440,38 +425,34 @@ const RevenueDashboard = () => {
       >
         {[
           {
-            title: "Total User",
+            title: t('total_user'),
             value: totalUsers.toLocaleString(),
             trend: "up",
-            change: "0% Up from yesterday",
+            change: `0% ${t('up_from_yesterday')}`,
             icon: PeopleIcon,
             bg: "linear-gradient(135deg, #c4b5fd, #8b5cf6)",
           },
           {
-            title: "Total Order",
+            title: t('total_order'),
             value: allOrders.length.toLocaleString(), // عرض كل الاوردرات
             trend: "up",
-            change: "0% Up from past week",
+            change: `0% ${t('up_from_past_week')}`,
             icon: ShoppingCartIcon,
             bg: "linear-gradient(135deg, #fdba74, #fb923c)",
           },
           {
-            title: "Total Revenue",
-            value: `${totalRevenue.toLocaleString()} SAR`,
+            title: t('total_revenue'),
+            value: `${totalRevenue.toLocaleString()} ${t('sar')}`,
             trend: totalRevenue > 0 ? "up" : "down",
-            change: `${totalRevenue > 0 ? "0%" : "0%"} ${
-              totalRevenue > 0 ? "Up" : "Down"
-            } from yesterday`,
+            change: `0% ${totalRevenue > 0 ? t('up') : t('down')} ${t('from_yesterday')}`,
             icon: AttachMoneyIcon,
             bg: "linear-gradient(135deg, #86efac, #22c55e)",
           },
           {
-            title: "Total Profit",
-            value: `${totalProfit.toLocaleString()} SAR`,
+            title: t('total_profit'),
+            value: `${totalProfit.toLocaleString()} ${t('sar')}`,
             trend: totalProfit > 0 ? "up" : "down",
-            change: `${totalProfit > 0 ? "0%" : "0%"} ${
-              totalProfit > 0 ? "Up" : "Down"
-            } from yesterday`,
+            change: `0% ${totalProfit > 0 ? t('up') : t('down')} ${t('from_yesterday')}`,
             icon: CheckCircleIcon,
             bg: "linear-gradient(135deg, #93c5fd, #3b82f6)",
           },
@@ -544,11 +525,11 @@ const RevenueDashboard = () => {
                   fontWeight={600}
                   fontSize={isMobile ? "1rem" : "1.25rem"}
                 >
-                  Revenue
+                  {t('revenue')}
                 </Typography>
                 <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
                   <Typography variant={isMobile ? "h5" : "h4"} fontWeight={700}>
-                    {totalRevenue.toLocaleString()} SAR
+                    {totalRevenue.toLocaleString()} {t('sar')}
                   </Typography>
                 </Box>
               </Box>
@@ -558,7 +539,7 @@ const RevenueDashboard = () => {
                   size="small"
                   sx={{ borderRadius: 2, fontSize: "12px" }}
                 >
-                  Week
+                  {t('week')}
                 </Button>
               </Box>
             </Box>
@@ -571,7 +552,7 @@ const RevenueDashboard = () => {
                       data: chartData.revenue,
                       area: true,
                       color: "#93c5fd",
-                      label: "Revenue",
+                      label: t('revenue'),
                     },
                   ]}
                   xAxis={[
@@ -582,7 +563,7 @@ const RevenueDashboard = () => {
                   ]}
                   yAxis={[
                     {
-                      label: "Amount (SAR)",
+                      label: `${t('amount')} (${t('sar')})`,
                     },
                   ]}
                   height={isMobile ? 250 : 320}
@@ -618,7 +599,7 @@ const RevenueDashboard = () => {
                   fontWeight={600}
                   fontSize={isMobile ? "1rem" : "1.25rem"}
                 >
-                  Profit
+                  {t('profit')}
                 </Typography>
                 <Box display="flex" alignItems="center" gap={0.5}>
                   <Typography
@@ -626,7 +607,7 @@ const RevenueDashboard = () => {
                     fontSize="12px"
                     whiteSpace="nowrap"
                   >
-                    Total: {totalProfit.toLocaleString()} SAR
+                    {t('total')}: {totalProfit.toLocaleString()} {t('sar')}
                   </Typography>
                 </Box>
               </Box>
@@ -639,7 +620,7 @@ const RevenueDashboard = () => {
                     {
                       data: chartData.profit,
                       color: "#3b82f6",
-                      label: "Profit",
+                      label: t('profit'),
                     },
                   ]}
                   xAxis={[
@@ -650,7 +631,7 @@ const RevenueDashboard = () => {
                   ]}
                   yAxis={[
                     {
-                      label: "Amount (SAR)",
+                      label: `${t('amount')} (${t('sar')})`,
                     },
                   ]}
                   height={isMobile ? 250 : 320}
@@ -681,10 +662,10 @@ const RevenueDashboard = () => {
               fontWeight={600}
               fontSize={isMobile ? "1rem" : "1.25rem"}
             >
-              Recent Orders ({recentOrders.length})
+              {t('recent_orders')} ({recentOrders.length})
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              Total Orders: {allOrders.length}
+              {t('total_orders')}: {allOrders.length}
             </Typography>
           </Box>
           <Link to={'/orderlist/weekly'}>
@@ -693,7 +674,7 @@ const RevenueDashboard = () => {
               size={isMobile ? "small" : "medium"}
               endIcon={<ArrowUpwardIcon sx={{ transform: "rotate(90deg)" }} />}
             >
-              {isMobile ? "Orders" : "Go to Orders Page"}
+              {isMobile ? t('orders') : t('go_to_orders_page')}
             </Button>
           </Link>
         </Box>
@@ -703,13 +684,13 @@ const RevenueDashboard = () => {
             <TableHead>
               <TableRow sx={{ backgroundColor: "#f3f4f6" }}>
                 <TableCell sx={{ fontWeight: 600 }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Item</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Qty</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('item')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('qty')}</TableCell>
                 {!isMobile && (
-                  <TableCell sx={{ fontWeight: 600 }}>Order Date</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{t('order_date')}</TableCell>
                 )}
-                <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('amount')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('status')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -751,25 +732,25 @@ const RevenueDashboard = () => {
                         size="small"
                         sx={{
                           backgroundColor:
-                            order.status === "Completed"
+                            order.status === t('completed')
                               ? "#d1fae5"
-                              : order.status === "Delivering"
-                              ? "#dbeafe"
-                              : order.status === "Preparing"
-                              ? "#fef3c7"
-                              : order.status === "Waiting"
-                              ? "#f3f4f6"
-                              : "#fecaca",
+                              : order.status === t('delivering')
+                                ? "#dbeafe"
+                                : order.status === t('preparing')
+                                  ? "#fef3c7"
+                                  : order.status === t('waiting')
+                                    ? "#f3f4f6"
+                                    : "#fecaca",
                           color:
-                            order.status === "Completed"
+                            order.status === t('completed')
                               ? "#065f46"
-                              : order.status === "Delivering"
-                              ? "#1e40af"
-                              : order.status === "Preparing"
-                              ? "#92400e"
-                              : order.status === "Waiting"
-                              ? "#6b7280"
-                              : "#dc2626",
+                              : order.status === t('delivering')
+                                ? "#1e40af"
+                                : order.status === t('preparing')
+                                  ? "#92400e"
+                                  : order.status === t('waiting')
+                                    ? "#6b7280"
+                                    : "#dc2626",
                           fontSize: isMobile ? "10px" : "12px",
                           height: isMobile ? 24 : 32,
                         }}
@@ -785,7 +766,7 @@ const RevenueDashboard = () => {
                     sx={{ py: 4 }}
                   >
                     <Typography color="textSecondary">
-                      No recent orders found
+                      {t('no_recent_orders')}
                     </Typography>
                   </TableCell>
                 </TableRow>

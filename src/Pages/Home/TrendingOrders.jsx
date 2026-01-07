@@ -1,12 +1,14 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const TrendingOrders = () => {
+  const { t } = useTranslation();
   let token = JSON.parse(localStorage.getItem("token"));
   useEffect(() => {
     axios
       .get(
-        "https://tharaa.premiumasp.net/api/Menu/product/top-selling?top=10",
+        "api/Menu/product/top-selling?top=10",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -31,7 +33,6 @@ const TrendingOrders = () => {
     },
     title: {
       color: "#333",
-
       marginBottom: "20px",
       fontSize: "24px",
       fontWeight: "bold",
@@ -41,7 +42,7 @@ const TrendingOrders = () => {
       gap: "15px",
       maxWidth: "100%",
       overflowX: "auto",
-      alignItems:'center'
+      alignItems: 'center'
     },
     orderItem: {
       backgroundColor: "white",
@@ -49,7 +50,7 @@ const TrendingOrders = () => {
       borderRadius: "8px",
       boxShadow: "0 1px 5px rgba(0, 0, 0, 0.05)",
       transition: "transform 0.2s ease",
-      textAlign:'center'
+      textAlign: 'center'
     },
     orderItemHover: {
       transform: "translateY(-2px)",
@@ -72,7 +73,7 @@ const TrendingOrders = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>Trending orders</h2>
+      <h2 style={styles.title}>{t('trending_orders')}</h2>
       <div style={styles.ordersList}>
         {trendingItems.map((item) => (
           <div
@@ -90,16 +91,15 @@ const TrendingOrders = () => {
             <img
               src={
                 item?.imageUrl?.includes("drive.google.com")
-                  ? `https://lh3.googleusercontent.com/d/${
-                      item.imageUrl.match(/\/d\/([^/]+)\//)?.[1]
-                    }`
+                  ? `https://lh3.googleusercontent.com/d/${item.imageUrl.match(/\/d\/([^/]+)\//)?.[1]
+                  }`
                   : item?.imageUrl
               }
               alt={item?.name}
-              style={{ width: "120px", borderRadius:5 }}
+              style={{ width: "120px", borderRadius: 5 }}
             />
             <h3 style={styles.itemName}>{item.name}</h3>
-            <p style={styles.itemPrice}>price: {item.price}</p>
+            <p style={styles.itemPrice}>{t('price')}: {item.price}</p>
           </div>
         ))}
       </div>

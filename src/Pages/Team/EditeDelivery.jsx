@@ -14,8 +14,10 @@ import {
 } from "@mui/material";
 import { Home, People } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const EditDelivery = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -28,7 +30,7 @@ const EditDelivery = () => {
     password: "",
     phoneNumber: "",
   });
-  
+
   const [alert, setAlert] = useState({
     show: false,
     message: "",
@@ -37,22 +39,22 @@ const EditDelivery = () => {
 
   useEffect(() => {
     const token = JSON.parse(localStorage.getItem("token"));
-    
+
     if (!id) {
-      showAlert("Invalid delivery ID", "error");
+      showAlert(t('invalid_delivery_id'), "error");
       return;
     }
 
     axios
-      .get(`https://tharaa.premiumasp.net/api/Delivery/${id}`, {
+      .get(`api/Delivery/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => {
         const data = res.data.data;
-        // console.log(data);
-        
+        console.log(data);
+
         setFormData({
           driverName: data.driverName || "",
           driverPhone: data.driverPhone || "",
@@ -65,7 +67,7 @@ const EditDelivery = () => {
         });
       })
       .catch((error) => {
-        showAlert("Failed to load delivery driver data", "error");
+        showAlert(t('failed_to_load_delivery_driver_data'), "error");
         console.error("Error fetching delivery:", error);
       });
   }, [id]);
@@ -95,7 +97,7 @@ const EditDelivery = () => {
       !formData.address ||
       !formData.password
     ) {
-      showAlert("Please fill in all required fields", "error");
+      showAlert(t('please_fill_in_all_required_fields'), "error");
       return;
     }
 
@@ -103,7 +105,7 @@ const EditDelivery = () => {
 
     axios
       .put(
-        `https://tharaa.premiumasp.net/api/Delivery/delivery-guys/${id}`,
+        `api/Delivery/delivery-guys/${id}`,
         {
           driverName: formData.driverName,
           driverPhone: formData.driverPhone,
@@ -121,15 +123,15 @@ const EditDelivery = () => {
         }
       )
       .then((res) => {
-        showAlert("Delivery driver updated successfully!", "success");
+        showAlert(t('delivery_driver_updated_successfully'), "success");
         // يمكنك استخدام navigate بدلاً من location.href
         setTimeout(() => {
-          navigate("/team/DeliveryTeam");
+          navigate("team/DeliveryTeam");
         }, 1500);
       })
       .catch((error) => {
         showAlert(
-          error.response?.data?.message || "Error updating delivery driver",
+          error.response?.data?.message || t('error_updating_delivery_driver'),
           "error"
         );
         console.error("Error:", error);
@@ -137,7 +139,6 @@ const EditDelivery = () => {
   };
 
   // console.log(formData);
-  
 
   return (
     <Box sx={{ padding: 3, backgroundColor: "#fff", minHeight: "100vh" }}>
@@ -154,7 +155,7 @@ const EditDelivery = () => {
           component="h1"
           sx={{ fontWeight: "bold", mb: 1 }}
         >
-          Edit Delivery Driver
+          {t('edit_delivery_driver')}
         </Typography>
         <Breadcrumbs aria-label="breadcrumb" sx={{ color: "text.secondary" }}>
           <Link
@@ -164,7 +165,7 @@ const EditDelivery = () => {
             sx={{ display: 'flex', alignItems: 'center' }}
           >
             <Home sx={{ mr: 0.5 }} fontSize="inherit" />
-            Dashboard
+            {t('dashboard')}
           </Link>
           <Link
             underline="hover"
@@ -173,10 +174,10 @@ const EditDelivery = () => {
             sx={{ display: 'flex', alignItems: 'center' }}
           >
             <People sx={{ mr: 0.5 }} fontSize="inherit" />
-            Delivery Team
+            {t('delivery_team')}
           </Link>
           <Typography color="primary" sx={{ fontWeight: 600 }}>
-            Edit Delivery Driver
+            {t('edit_delivery_driver')}
           </Typography>
         </Breadcrumbs>
       </Box>
@@ -191,7 +192,7 @@ const EditDelivery = () => {
                 component="h2"
                 sx={{ mb: 2, fontWeight: "bold" }}
               >
-                Delivery Driver Information
+                {t('delivery_driver_information')}
               </Typography>
 
               <Box component="form" onSubmit={handleSubmit}>
@@ -200,9 +201,9 @@ const EditDelivery = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Driver Name"
+                      label={t('driver_name')}
                       name="driverName"
-                      placeholder="Input driver name"
+                      placeholder={t('input_driver_name')}
                       value={formData.driverName}
                       onChange={handleInputChange}
                       required
@@ -214,9 +215,9 @@ const EditDelivery = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Phone Number"
+                      label={t('phone_number')}
                       name="driverPhone"
-                      placeholder="Input driver phone number"
+                      placeholder={t('input_driver_phone_number')}
                       value={formData.driverPhone}
                       onChange={handleInputChange}
                       required
@@ -228,18 +229,18 @@ const EditDelivery = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Salary"
+                      label={t('salary')}
                       name="salary"
                       type="number"
-                      placeholder="Input salary"
+                      placeholder={t('input_salary')}
                       value={formData.salary}
                       onChange={handleInputChange}
                       required
                       variant="outlined"
                       InputProps={{
-                        inputProps: { 
+                        inputProps: {
                           min: 0,
-                          step: 0.01 
+                          step: 0.01
                         }
                       }}
                     />
@@ -249,10 +250,10 @@ const EditDelivery = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Address"
+                      label={t('address')}
                       name="address"
                       autoComplete="off"
-                      placeholder="Input address"
+                      placeholder={t('input_address')}
                       value={formData.address}
                       onChange={handleInputChange}
                       required
@@ -265,15 +266,15 @@ const EditDelivery = () => {
                     <TextField
                       fullWidth
                       autoComplete="off"
-                      label="New Password"
+                      label={t('new_password')}
                       name="password"
                       type="password"
-                      placeholder="Input new password"
+                      placeholder={t('input_new_password')}
                       value={formData.password}
                       onChange={handleInputChange}
                       required
                       variant="outlined"
-                      // helperText="Leave empty to keep current password"
+                    // helperText="Leave empty to keep current password"
                     />
                   </Grid>
 
@@ -281,9 +282,9 @@ const EditDelivery = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Photo URL"
+                      label={t('photo_url')}
                       name="driverPhotoUrl"
-                      placeholder="Input photo URL"
+                      placeholder={t('input_photo_url')}
                       value={formData.driverPhotoUrl}
                       onChange={handleInputChange}
                       variant="outlined"
@@ -302,7 +303,7 @@ const EditDelivery = () => {
                         style={{ marginRight: '8px' }}
                       />
                       <label htmlFor="isActive">
-                        Active Driver
+                        {t('active_driver')}
                       </label>
                     </Box>
                   </Grid>
@@ -312,9 +313,9 @@ const EditDelivery = () => {
                     <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
                       <Button
                         variant="outlined"
-                        onClick={() => navigate("/team/DeliveryTeam")}
+                        onClick={() => navigate("team/DeliveryTeam")}
                       >
-                        Cancel
+                        {t('cancel')}
                       </Button>
                       <Button
                         type="submit"
@@ -326,7 +327,7 @@ const EditDelivery = () => {
                           },
                         }}
                       >
-                        Update Delivery Driver
+                        {t('update_delivery_driver')}
                       </Button>
                     </Box>
                   </Grid>

@@ -25,22 +25,38 @@ import { Toaster } from "react-hot-toast";
 import EditDelivery from "../Team/EditeDelivery";
 import EditStuff from "../Team/EditeStuff";
 import OrderPage from "../OrdersList/OrderPage";
-import { ToastContainer } from "react-toastify";
+
 import FinishalPost from "../../Components/FininshalPost";
 import MenuManager from "../Menu/MenuPage";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
+  const { i18n } = useTranslation();
+
+
+
   return (
-    <Box sx={{ display: "flex", maxHeight: "100vh" }} className='mainCon'>
-      <Toaster />
-      <ToastContainer />
+    <Box
+      sx={{
+        display: "flex",
 
-
+        minHeight: '100%',
+      }}
+      className="mainCon"
+    >
       <LeftSidebar />
-      
-      <div style={{ maxHeight: "100vh", overflowY: "auto", flex: 1 }}>
+
+      <div
+        style={{
+          maxHeight: "100vh",
+          flex: 1,
+          direction: i18n.language === "ar" ? "rtl" : "ltr",
+          // maxHeight:'100%',
+          overflowY: "auto",
+        }}
+      >
         <TopSlidePar />
-        <hr style={{margin:10}}/>
+        <hr style={{ margin: 10 }} />
         <Routes>
           <Route path="/login" element={<Login />} />
           {localStorage.role === "Admin" && (
@@ -50,15 +66,12 @@ const Home = () => {
               <Route
                 path="/dashboard/expenses"
                 element={<ExpensesDashboard />}
-                />
+              />
               <Route
                 path="/dashboard/loss"
                 element={<FinanceLossDashboard />}
               />
-              <Route
-                path="/dashboard/revenue"
-                element={<RevenueDashboard />}
-              />
+              <Route path="/dashboard/revenue" element={<RevenueDashboard />} />
               <Route
                 path="/dashboard/transaction"
                 element={<TransactionDashboard />}
@@ -75,16 +88,13 @@ const Home = () => {
                 path="/orderlist/weekly"
                 element={<YearlyOrders period="week" />}
               />
-              <Route path="/orderlist/:id/:method" element={<OrderPage />} />
+              <Route path="/orderlist/:id" element={<OrderPage />} />
             </>
           )}
           {localStorage.role !== "Admin" && (
             <Route index element={<Navigate to="/warehouse" />} />
           )}
-          <Route
-            path="/profile"
-            element={<SimpleProfilePage />}
-          />
+          <Route path="/profile" element={<SimpleProfilePage />} />
           <Route path="/warehouse" element={<WarehouseDashboard />} />
           <Route path="/warehouse/editeProduct" element={<WarehouseEdite />} />
           <Route
@@ -96,10 +106,13 @@ const Home = () => {
           <Route path="/team/CallcenterTeam/add" element={<AddCallcenter />} />
           <Route path="/EditCallCenter/:id" element={<EditUser />} />
           <Route path="/team/deliveryTeam" element={<TeamDelivery />} />
-          <Route path="/team/deliveryTeam/Edit/:id" element={<EditDelivery />} />
+          <Route
+            path="/team/deliveryTeam/Edit/:id"
+            element={<EditDelivery />}
+          />
+          <Route path="/team/addDelivery" element={<AddDelivery />} />
           <Route path="/team/stuffTeam" element={<StuffTeam />} />
           <Route path="/team/stuffTeam/Edit/:id" element={<EditStuff />} />
-          <Route path="/team/addDelivery" element={<AddDelivery />} />
           <Route path="/team/addStuff" element={<AddStuff />} />
           <Route path="/fininshalPost" element={<FinishalPost />} />
           <Route path="/menumangement" element={<MenuManager />} />

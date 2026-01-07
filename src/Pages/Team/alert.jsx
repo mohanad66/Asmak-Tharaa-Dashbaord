@@ -10,18 +10,21 @@ import {
   Avatar
 } from '@mui/material';
 import { Warning, Delete, Info } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 const ConfirmAlert = ({
   open = false,
   onClose,
   onConfirm,
-  title = "Confirmation",
-  message = "Are you sure?",
-  confirmText = "Yes",
-  cancelText = "No",
+  title = "confirmation",
+  message = "are_you_sure",
+  confirmText = "yes",
+  cancelText = "no",
   confirmColor = "error",
   type = "warning" // warning, delete, info
 }) => {
+  const { t } = useTranslation();
+
   const getIcon = () => {
     switch (type) {
       case 'delete':
@@ -57,13 +60,13 @@ const ConfirmAlert = ({
           <Avatar sx={{ bgcolor: 'transparent' }}>
             {getIcon()}
           </Avatar>
-          <Typography variant="h6">{title}</Typography>
+          <Typography variant="h6">{t(title)}</Typography>
         </Box>
       </DialogTitle>
       
       <DialogContent>
         <Typography variant="body1" sx={{ mt: 1 }}>
-          {message}
+          {t(message)}
         </Typography>
       </DialogContent>
       
@@ -74,7 +77,7 @@ const ConfirmAlert = ({
           variant="outlined"
           size="large"
         >
-          {cancelText}
+          {t(cancelText)}
         </Button>
         <Button 
           onClick={handleConfirm}
@@ -84,7 +87,7 @@ const ConfirmAlert = ({
           autoFocus
           startIcon={<Delete />}
         >
-          {confirmText}
+          {t(confirmText)}
         </Button>
       </DialogActions>
     </Dialog>

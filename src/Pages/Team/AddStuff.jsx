@@ -1,8 +1,10 @@
 import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const AddStuff = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     staffName: "",
     startDate: "",
@@ -12,11 +14,11 @@ const AddStuff = () => {
   });
 
   // const [images, setImages] = useState([
-  //   { id: 1, file: null, preview: null, label: "Photo 1", width: 80 },
-  //   { id: 2, file: null, preview: null, label: "Photo 2", width: 170 },
+  //   { id: 1, file: null, preview: null, label: t('photo_1'), width: 80 },
+  //   { id: 2, file: null, preview: null, label: t('photo_2'), width: 170 },
   // ]);
 
-  const [teamType, setTeamType] = useState("Team from resturant");
+  const [teamType, setTeamType] = useState(t('team_from_restaurant'));
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -31,7 +33,7 @@ const AddStuff = () => {
   //   if (file) {
   //     // التحقق من حجم الملف (4MB كحد أقصى)
   //     if (file.size > 4 * 1024 * 1024) {
-  //       alert("File size must be less than 4MB");
+  //       alert(t('file_size_must_be_less_than_4mb'));
   //       return;
   //     }
 
@@ -43,7 +45,7 @@ const AddStuff = () => {
   //       "image/jpg",
   //     ];
   //     if (!validTypes.includes(file.type)) {
-  //       alert("Please select SVG, PNG, or JPG files only");
+  //       alert(t('please_select_svg_png_or_jpg_files_only'));
   //       return;
   //     }
 
@@ -80,14 +82,14 @@ const AddStuff = () => {
 
     // التحقق من الحقول المطلوبة
     if (!formData.staffName || !formData.salary || !formData.position) {
-      alert("Please fill in all required fields");
+      alert(t('please_fill_in_all_required_fields'));
       return;
     }
     let token = JSON.parse(localStorage.getItem("token"));
 
     axios
       .post(
-        `https://tharaa.premiumasp.net/api/Stuff`,
+        `api/Stuff`,
         {
           fullName: formData.staffName,
           position: formData.position,
@@ -111,7 +113,7 @@ const AddStuff = () => {
 
     console.log("Form Data:", formData);
 
-    
+
     setFormData({
       staffName: "",
       startDate: "",
@@ -121,8 +123,8 @@ const AddStuff = () => {
     });
 
     // setImages([
-    //   { id: 1, file: null, preview: null, label: "Photo 1", width: 80 },
-    //   { id: 2, file: null, preview: null, label: "Photo 2", width: 170 },
+    //   { id: 1, file: null, preview: null, label: t('photo_1'), width: 80 },
+    //   { id: 2, file: null, preview: null, label: t('photo_2'), width: 170 },
     // ]);
   };
 
@@ -136,11 +138,11 @@ const AddStuff = () => {
             {/* Header */}
             <div className="d-flex align-items-center justify-content-between header-row mb-3">
               <div className="welcome">
-                <h4 className="mb-1">staff</h4>
+                <h4 className="mb-1">{t('staff')}</h4>
                 <div className="text-muted small">
-                  Dashboard › teams ›{" "}
+                  {t('dashboard')} › {t('teams')} ›{" "}
                   <span style={{ color: "#0b63c6", fontWeight: "600" }}>
-                    Add Staff
+                    {t('add_staff')}
                   </span>
                 </div>
               </div>
@@ -158,63 +160,33 @@ const AddStuff = () => {
               {/* Left: Staff Information */}
               <div className="col-12">
                 <div className="card p-4" style={{ borderRadius: "14px" }}>
-                  <h5 className="mb-3">Staff Information</h5>
-                  {/* <p className="text-muted small">
-                    Lorem ipsum dolor sit amet consectetur. Non ac nulla aliquam
-                    aenean in velit mattis.
-                  </p> */}
+                  <h5 className="mb-3">{t('staff_information')}</h5>
 
                   <form onSubmit={handleSubmit}>
-                    {/* <div className="mb-3">
-                      <label className="form-label small text-muted">
-                        company
-                      </label>
-                      <input
-                        className="form-control"
-                        name="company"
-                        placeholder="Input no company"
-                        value={formData.company}
-                        onChange={handleInputChange}
-                      />
-                    </div> */}
-
                     <div className="mb-3">
                       <label className="form-label small text-muted">
-                        staff Name
+                        {t('staff_name')}
                       </label>
                       <input
                         className="form-control"
                         name="staffName"
-                        placeholder="Input staff name"
+                        placeholder={t('input_staff_name')}
                         value={formData.staffName}
                         onChange={handleInputChange}
                         required
                       />
                     </div>
 
-                    {/* <div className="row g-3 mb-3">
-                      <div className="col-6">
-                        <label className="form-label small text-muted">
-                          Discount
-                        </label>
-                        <input
-                          className="form-control"
-                          name="discount"
-                          placeholder="-2,5%"
-                          value={formData.discount}
-                          onChange={handleInputChange}
-                        />
-                      </div> 
-                    </div> */}
                     <div className="col-12">
                       <label className="form-label small text-muted">
-                        start data
+                        {t('start_date')}
                       </label>
                       <input
                         className="form-control"
                         name="startDate"
-                        placeholder="25/08/2025"
+                        placeholder={t('input_start_date')}
                         value={formData.startDate}
+                        type="date"
                         onChange={handleInputChange}
                       />
                     </div>
@@ -222,12 +194,12 @@ const AddStuff = () => {
                     <div className="row g-3 mb-3">
                       <div className="col-6">
                         <label className="form-label small text-muted">
-                          posation
+                          {t('position')}
                         </label>
                         <input
                           className="form-control"
                           name="position"
-                          placeholder="position"
+                          placeholder={t('input_position')}
                           value={formData.position}
                           onChange={handleInputChange}
                           required
@@ -235,12 +207,12 @@ const AddStuff = () => {
                       </div>
                       <div className="col-6">
                         <label className="form-label small text-muted">
-                          salare
+                          {t('salary')}
                         </label>
                         <input
                           className="form-control"
                           name="salary"
-                          placeholder="Input Price"
+                          placeholder={t('input_price')}
                           value={formData.salary}
                           onChange={handleInputChange}
                           required
@@ -249,39 +221,18 @@ const AddStuff = () => {
                     </div>
 
                     <div className="mb-3">
-                      <label className="form-label small text-muted">age</label>
+                      <label className="form-label small text-muted">{t('age')}</label>
                       <input
                         className="form-control"
                         name="age"
-                        placeholder="Input stock"
+                        placeholder={t('input_age')}
                         value={formData.age}
                         onChange={handleInputChange}
                       />
                     </div>
-
-                    {/* <div className="mb-3">
-                      <label className="form-label small text-muted">
-                        Evaluation
-                      </label>
-                      <select
-                        className="form-select"
-                        name="evaluation"
-                        value={formData.evaluation}
-                        onChange={handleInputChange}
-                      >
-                        <option value="Evaluation">Evaluation</option>
-                        <option value="1.0">1.0</option>
-                        <option value="2.0">2.0</option>
-                        <option value="3.0">3.0</option>
-                        <option value="3.5">3.5</option>
-                        <option value="4.0">4.0</option>
-                        <option value="4.5">4.5</option>
-                        <option value="5.0">5.0</option>
-                      </select>
-                    </div> */}
                   </form>
                   <button className="btn btn-primary" onClick={handleSubmit}>
-                    Save Staff
+                    {t('save_staff')}
                   </button>
                 </div>
               </div>
@@ -289,9 +240,9 @@ const AddStuff = () => {
               {/* Right: Image Staff + Save */}
               {/* <div className="col-12 col-lg-4">
                 <div className="card p-3 mb-3" style={{ borderRadius: "14px" }}>
-                  <h5 className="mb-2">Image Staff</h5>
+                  <h5 className="mb-2">{t('image_staff')}</h5>
                   <div className="small text-muted mb-3">
-                    Note : Format photos SVG, PNG, or JPG (Max size 4mb)
+                    {t('note_format_photos_svg_png_jpg_max_size_4mb')}
                   </div>
 
                   <div className="d-flex gap-2 flex-wrap">
@@ -375,7 +326,7 @@ const AddStuff = () => {
 
                 <div className="card p-3" style={{ borderRadius: "14px" }}>
                   <div className="small text-muted">
-                    You can add up to 4 photos. SVG, PNG or JPG only.
+                    {t('you_can_add_up_to_4_photos_svg_png_jpg_only')}
                   </div>
                 </div>
               </div> */}

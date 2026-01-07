@@ -4,8 +4,10 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import axios from "axios";
 import { useDate } from "../../Contexts/DateContext";
 import { LineChart } from "@mui/x-charts/LineChart";
+import { useTranslation } from "react-i18next";
 
 const ExpensesDashboard = () => {
+  const { t } = useTranslation();
   const [chartData, setChartData] = useState({
     days: [],
     values: [0, 0, 0, 0, 0, 0, 0],
@@ -23,8 +25,6 @@ const ExpensesDashboard = () => {
     total: 0
   });
 
-  console.log(todayFinancial);
-
   let [staffData, setStuffData] = useState([]);
   let [financialRecords, setFinancialRecords] = useState([]);
 
@@ -32,7 +32,7 @@ const ExpensesDashboard = () => {
 
   useEffect(() => {
     axios
-      .get(`https://tharaa.premiumasp.net/api/Stuff`, {
+      .get(`api/Stuff`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -45,7 +45,7 @@ const ExpensesDashboard = () => {
   useEffect(() => {
     axios
       .get(
-        `https://tharaa.premiumasp.net/api/FinancialManagement/Profit?From=${lastWeek}&To=${today}`,
+        `api/FinancialManagement/Profit?From=${lastWeek}&To=${today}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -56,12 +56,12 @@ const ExpensesDashboard = () => {
         const data = res.data.data;
         const financialRecords = data.financialRecords;
         setFinancialRecords(financialRecords);
-        
+
         // Find all records from today (not just one)
         let todayRecords = financialRecords.filter(
           (f) => f.date.split("T")[0] === today
         );
-        
+
         // Calculate sums for today's records
         const sums = {
           buyProducts: 0,
@@ -71,7 +71,7 @@ const ExpensesDashboard = () => {
           account: 0,
           total: 0
         };
-        
+
         todayRecords.forEach(record => {
           sums.buyProducts += record.buyProducts || 0;
           sums.transportation += record.transportation || 0;
@@ -79,12 +79,12 @@ const ExpensesDashboard = () => {
           sums.technology += record.technology || 0;
           sums.account += record.account || 0;
         });
-        
-        sums.total = sums.buyProducts + sums.transportation + sums.repairs + 
-                     sums.technology + sums.account;
-        
+
+        sums.total = sums.buyProducts + sums.transportation + sums.repairs +
+          sums.technology + sums.account;
+
         setTodayFinancialSum(sums);
-        
+
         // Keep the first record for backward compatibility if needed
         if (todayRecords.length > 0) {
           setTodayFinancial(todayRecords[0]);
@@ -163,21 +163,21 @@ const ExpensesDashboard = () => {
                 >
                   <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
                     <div>
-                      <h5 className="mb-1 fw-bold">Expenses</h5>
+                      <h5 className="mb-1 fw-bold">{t('expenses')}</h5>
                       <p className="text-muted mb-0 small">
-                        From {lastWeek} to {today}
+                        {t('from')} {lastWeek} {t('to')} {today}
                       </p>
                     </div>
                     <div>
                       <span className="badge bg-light text-dark border px-3 py-2">
-                        Last Week
+                        {t('last_week')}
                       </span>
                     </div>
                   </div>
 
                   <div className="mb-4">
-                    <h6 className="fw-bold mb-2">Expense statistic</h6>
-                    <p className="text-muted small mb-3">Last Week Expenses</p>
+                    <h6 className="fw-bold mb-2">{t('expense_statistic')}</h6>
+                    <p className="text-muted small mb-3">{t('last_week_expenses')}</p>
 
                     <div className="mt-3" style={{ overflowX: "auto" }}>
                       <div style={{ minWidth: "300px" }}>
@@ -186,19 +186,19 @@ const ExpensesDashboard = () => {
                             {
                               data: chartData.values,
                               color: "#9f7aea",
-                              label: "Expenses",
+                              label: t('expenses'),
                             },
                           ]}
                           xAxis={[
                             {
                               data: chartData.days,
                               scaleType: "band",
-                              label: "Days of Week",
+                              label: t('days_of_week'),
                             },
                           ]}
                           yAxis={[
                             {
-                              label: "Amount (SAR)",
+                              label: t('amount_sar'),
                             },
                           ]}
                           height={280}
@@ -218,8 +218,8 @@ const ExpensesDashboard = () => {
                   style={{ border: "1px solid #e6e9ee", borderRadius: "16px" }}
                 >
                   <div className="px-2 px-md-3 pt-2 pt-md-3">
-                    <h6 className="fw-bold">Today's Total Expenses</h6>
-                    <p className="text-muted small mb-0">Date: {today}</p>
+                    <h6 className="fw-bold">{t('todays_total_expenses')}</h6>
+                    <p className="text-muted small mb-0">{t('date')}: {today}</p>
                   </div>
 
                   <div className="p-2 p-md-3 pt-0">
@@ -233,9 +233,9 @@ const ExpensesDashboard = () => {
                           <i className="bi bi-cart"></i>
                         </div>
                         <div>
-                          <span className="fw-bold">Buy products</span>
+                          <span className="fw-bold">{t('buy_products')}</span>
                           <br />
-                          <small className="text-muted">Sum of all today's records</small>
+                          <small className="text-muted">{t('sum_of_all_records')}</small>
                         </div>
                       </div>
                       <span className="badge bg-danger text-white fs-6">
@@ -256,9 +256,9 @@ const ExpensesDashboard = () => {
                           <i className="bi bi-bus-front"></i>
                         </div>
                         <div>
-                          <span className="fw-bold">Transportation</span>
+                          <span className="fw-bold">{t('transportation')}</span>
                           <br />
-                          <small className="text-muted">Sum of all today's records</small>
+                          <small className="text-muted">{t('sum_of_all_records')}</small>
                         </div>
                       </div>
                       <span className="badge bg-danger text-white fs-6">
@@ -270,21 +270,21 @@ const ExpensesDashboard = () => {
                       <div className="d-flex align-items-center">
                         <div
                           className="rounded-circle d-flex align-items-center justify-content-center text-white me-3"
-                          style={{ width: "40px", height: "40px", background:'rgba(255, 135, 0, 1)' }}
+                          style={{ width: "40px", height: "40px", background: 'rgba(255, 135, 0, 1)' }}
                         >
                           <i className="bi bi-tools"></i>
                         </div>
                         <div>
-                          <span className="fw-bold">Repairs</span>
+                          <span className="fw-bold">{t('repairs')}</span>
                           <br />
-                          <small className="text-muted">Sum of all today's records</small>
+                          <small className="text-muted">{t('sum_of_all_records')}</small>
                         </div>
                       </div>
                       <span className="badge bg-danger text-white fs-6">
                         {todayFinancialSum.repairs || 0}
                       </span>
                     </div>
-                    
+
                     <div className="d-flex align-items-center justify-content-between py-3 border-bottom">
                       <div className="d-flex align-items-center">
                         <div
@@ -294,16 +294,16 @@ const ExpensesDashboard = () => {
                           <i className="bi bi-pc-display"></i>
                         </div>
                         <div>
-                          <span className="fw-bold">Technology</span>
+                          <span className="fw-bold">{t('technology')}</span>
                           <br />
-                          <small className="text-muted">Sum of all today's records</small>
+                          <small className="text-muted">{t('sum_of_all_records')}</small>
                         </div>
                       </div>
                       <span className="badge bg-danger text-white fs-6">
                         {todayFinancialSum.technology || 0}
                       </span>
                     </div>
-                    
+
                     <div className="d-flex align-items-center justify-content-between py-3 ">
                       <div className="d-flex align-items-center">
                         <div
@@ -313,9 +313,9 @@ const ExpensesDashboard = () => {
                           <i className="bi bi-person"></i>
                         </div>
                         <div>
-                          <span className="fw-bold">Account</span>
+                          <span className="fw-bold">{t('account')}</span>
                           <br />
-                          <small className="text-muted">Sum of all today's records</small>
+                          <small className="text-muted">{t('sum_of_all_records')}</small>
                         </div>
                       </div>
                       <span className="badge bg-danger text-white fs-6">
@@ -335,13 +335,13 @@ const ExpensesDashboard = () => {
                           <i className="bi bi-cash-coin"></i>
                         </div>
                         <div>
-                          <span className="fw-bold">Today's Total</span>
+                          <span className="fw-bold">{t('todays_total')}</span>
                           <br />
-                          <small className="text-muted">Sum of all expenses today</small>
+                          <small className="text-muted">{t('sum_of_all_expenses')}</small>
                         </div>
                       </div>
                       <span className="badge bg-dark text-white fs-5">
-                        {todayFinancialSum.total || 0} SAR
+                        {todayFinancialSum.total || 0} {t('sar')}
                       </span>
                     </div>
                   </div>
@@ -355,19 +355,19 @@ const ExpensesDashboard = () => {
               style={{ border: "1px solid #e6e9ee", borderRadius: "16px" }}
             >
               <div className="card-body">
-                <h6 className="fw-bold mb-3">Staff Expenses</h6>
+                <h6 className="fw-bold mb-3">{t('staff_expenses')}</h6>
                 <div className="table-responsive">
                   <table className="table table-striped">
                     <thead className="table-light">
                       <tr>
-                        <th className="fw-semibold">Name</th>
+                        <th className="fw-semibold">{t('name')}</th>
                         <th className="fw-semibold d-none d-sm-table-cell">
-                          Position
+                          {t('position')}
                         </th>
-                        <th className="fw-semibold">Age</th>
-                        <th className="fw-semibold">Salary</th>
+                        <th className="fw-semibold">{t('age')}</th>
+                        <th className="fw-semibold">{t('salary')}</th>
                         <th className="fw-semibold d-none d-md-table-cell">
-                          Start date
+                          {t('start_date')}
                         </th>
                       </tr>
                     </thead>

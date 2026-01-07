@@ -43,10 +43,12 @@ import {
   Avatar,
   InputAdornment,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
-const BASE_URL = "https://tharaa.premiumasp.net/api/menu";
+const BASE_URL = "api/";
 
 function MenuManager() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,38 +68,38 @@ function MenuManager() {
   const [loading, setLoading] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
+
   // Memoized categories to prevent re-renders
   const categories = useMemo(() => ({
-    0: "Salads",
-    1: "Soups",
-    2: "Appetizers",
-    3: "Fried Fish",
-    4: "Grilled Fish",
-    5: "Oven Fish",
-    6: "Tagines",
-    7: "Rice and Macaroni",
-    8: "Side Orders",
-    9: "Desserts",
-    10: "Cold Beverages",
-    11: "Hot Beverages",
-    12: "offers"
-  }), []);
+    0: t('salads'),
+    1: t('soups'),
+    2: t('appetizers'),
+    3: t('fried_fish'),
+    4: t('grilled_fish'),
+    5: t('oven_fish'),
+    6: t('tagines'),
+    7: t('rice_and_macaroni'),
+    8: t('side_orders'),
+    9: t('desserts'),
+    10: t('cold_beverages'),
+    11: t('hot_beverages'),
+    12: t('offers')
+  }), [t]);
 
   // Fetch all products - memoized with useCallback
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${BASE_URL}/products`);
+      const response = await axios.get(`${BASE_URL}products`);
       setProducts(response.data.data);
       setFilteredProducts(response.data.data);
     } catch (error) {
       console.error("Error fetching products:", error);
-      toast.error("Failed to load products. Please try again.");
+      toast.error(t('failed_to_load_products'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchProducts();
@@ -122,7 +124,7 @@ function MenuManager() {
         (categories[product.category] && categories[product.category].toLowerCase().includes(query))
       );
     });
-    
+
     setFilteredProducts(filtered);
   }, [searchQuery, products, categories]);
 
@@ -131,56 +133,56 @@ function MenuManager() {
     const newErrors = {};
 
     if (!product.name?.trim()) {
-      newErrors.name = "Product name is required";
+      newErrors.name = t('product_name_required');
     } else if (product.name.length < 2) {
-      newErrors.name = "Product name must be at least 2 characters";
+      newErrors.name = t('product_name_min_length');
     }
 
     if (!product.nameAR?.trim()) {
-      newErrors.nameAR = "Arabic name is required";
+      newErrors.nameAR = t('arabic_name_required');
     } else if (product.nameAR.length < 2) {
-      newErrors.nameAR = "Arabic name must be at least 2 characters";
+      newErrors.nameAR = t('arabic_name_min_length');
     }
 
     if (!product.imageUrl?.trim()) {
-      newErrors.imageUrl = "Image URL is required";
+      newErrors.imageUrl = t('image_url_required');
     }
 
     if (product.price < 0) {
-      newErrors.price = "Price cannot be negative";
+      newErrors.price = t('price_cannot_be_negative');
     }
 
     if (product.calories < 0) {
-      newErrors.calories = "Calories cannot be negative";
+      newErrors.calories = t('calories_cannot_be_negative');
     }
 
     if (product.description?.length > 500) {
-      newErrors.description = "Description cannot exceed 500 characters";
+      newErrors.description = t('description_cannot_exceed_500_chars');
     }
 
     if (product.descriptionAR?.length > 500) {
-      newErrors.descriptionAR = "Arabic description cannot exceed 500 characters";
+      newErrors.descriptionAR = t('arabic_description_cannot_exceed_500_chars');
     }
 
     return newErrors;
-  }, []);
+  }, [t]);
 
   // Add new product
   const handleAddProduct = async () => {
     const formErrors = validateForm(newProduct);
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
-      toast.error("Please fix the errors in the form");
+      toast.error(t('please_fix_errors_in_form'));
       return;
     }
 
     try {
       setLoading(true);
       await axios.post(`${BASE_URL}/product`, newProduct);
-      
-      toast.success("Product added successfully!");
+
+      toast.success(t('product_added_successfully'));
       fetchProducts();
-      
+
       setNewProduct({
         name: "",
         nameAR: "",
@@ -193,20 +195,20 @@ function MenuManager() {
         category: 0,
       });
       setErrors({});
-      
+
     } catch (error) {
       console.error("Error adding product:", error);
-      
+
       if (error.response) {
         if (error.response.status === 400) {
-          toast.error("Invalid data. Please check your inputs.");
+          toast.error(t('invalid_data_check_inputs'));
         } else if (error.response.status === 409) {
-          toast.error("A product with this name already exists.");
+          toast.error(t('product_with_this_name_exists'));
         } else {
-          toast.error("Failed to add product. Please try again.");
+          toast.error(t('failed_to_add_product'));
         }
       } else {
-        toast.error("Network error. Please check your connection.");
+        toast.error(t('network_error_check_connection'));
       }
     } finally {
       setLoading(false);
@@ -216,11 +218,11 @@ function MenuManager() {
   // Update product
   const handleUpdateProduct = async () => {
     if (!editingProduct || !editingProduct.id) return;
-    
+
     const formErrors = validateForm(editingProduct);
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
-      toast.error("Please fix the errors in the form");
+      toast.error(t('please_fix_errors_in_form'));
       return;
     }
 
@@ -230,25 +232,25 @@ function MenuManager() {
         `${BASE_URL}/product/${editingProduct.id}`,
         editingProduct
       );
-      
-      toast.success("Product updated successfully!");
+
+      toast.success(t('product_updated_successfully'));
       fetchProducts();
       setEditingProduct(null);
       setErrors({});
-      
+
     } catch (error) {
       console.error("Error updating product:", error);
-      
+
       if (error.response) {
         if (error.response.status === 404) {
-          toast.error("Product not found. It may have been deleted.");
+          toast.error(t('product_not_found_may_be_deleted'));
         } else if (error.response.status === 400) {
-          toast.error("Invalid data. Please check your inputs.");
+          toast.error(t('invalid_data_check_inputs'));
         } else {
-          toast.error("Failed to update product. Please try again.");
+          toast.error(t('failed_to_update_product'));
         }
       } else {
-        toast.error("Network error. Please check your connection.");
+        toast.error(t('network_error_check_connection'));
       }
     } finally {
       setLoading(false);
@@ -257,28 +259,28 @@ function MenuManager() {
 
   // Delete product
   const handleDeleteProduct = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) {
+    if (!window.confirm(t('are_you_sure_delete_product'))) {
       return;
     }
 
     try {
       setLoading(true);
       await axios.delete(`${BASE_URL}/product/${id}`);
-      
-      toast.success("Product deleted successfully!");
+
+      toast.success(t('product_deleted_successfully'));
       fetchProducts();
-      
+
     } catch (error) {
       console.error("Error deleting product:", error);
-      
+
       if (error.response) {
         if (error.response.status === 404) {
-          toast.error("Product not found. It may have been already deleted.");
+          toast.error(t('product_not_found_already_deleted'));
         } else {
-          toast.error("Failed to delete product. Please try again.");
+          toast.error(t('failed_to_delete_product'));
         }
       } else {
-        toast.error("Network error. Please check your connection.");
+        toast.error(t('network_error_check_connection'));
       }
     } finally {
       setLoading(false);
@@ -300,7 +302,7 @@ function MenuManager() {
       isAvailable: Boolean(product.isAvailable),
       category: product.category !== undefined && product.category !== null ? product.category : 0,
     };
-    
+
     setEditingProduct(cleanProduct);
     setErrors({});
   };
@@ -312,8 +314,8 @@ function MenuManager() {
       ...product,
       price: product.price || 0,
       calories: product.calories || 0,
-      nameAR: product.nameAR || 'N/A',
-      descriptionAR: product.descriptionAR || 'لا يوجد وصف',
+      nameAR: product.nameAR || t('n_a'),
+      descriptionAR: product.descriptionAR || t('no_description_ar'),
     };
     setSelectedProduct(cleanProduct);
     setViewDialogOpen(true);
@@ -331,7 +333,7 @@ function MenuManager() {
       ...prev,
       [field]: value,
     }));
-    
+
     // Clear error for this field when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
@@ -344,7 +346,7 @@ function MenuManager() {
       ...prev,
       [field]: value,
     }));
-    
+
     // Clear error for this field when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
@@ -355,7 +357,7 @@ function MenuManager() {
   const handleInputChange = useCallback((e, isEditing, field) => {
     const target = e.target;
     let value = target.value;
-    
+
     if (target.type === "checkbox") {
       value = target.checked;
     } else if (field === "price" || field === "calories" || field === "category") {
@@ -377,8 +379,8 @@ function MenuManager() {
 
   // Get category name - memoized
   const getCategoryName = useCallback((categoryId) => {
-    return categories[categoryId] || `Category ${categoryId}`;
-  }, [categories]);
+    return categories[categoryId] || `${t('category')} ${categoryId}`;
+  }, [categories, t]);
 
   // Render category options - memoized
   const renderCategoryOptions = useMemo(() => {
@@ -407,23 +409,22 @@ function MenuManager() {
   // Render product rows - memoized for performance
   const renderProductRows = useMemo(() => {
     return filteredProducts?.map((product) => (
-      <TableRow 
+      <TableRow
         key={product.id}
         hover
-        sx={{ 
+        sx={{
           '&:last-child td, &:last-child th': { border: 0 },
           backgroundColor: product.isAvailable ? 'inherit' : 'action.hover'
         }}
       >
         <TableCell>{product.id}</TableCell>
         <TableCell>
-          <Tooltip title="View Image">
+          <Tooltip title={t('view_image')}>
             <Avatar
               src={
                 product?.imageUrl?.includes("drive.google.com")
-                  ? `https://lh3.googleusercontent.com/d/${
-                      product.imageUrl.match(/\/d\/([^/]+)\//)?.[1]
-                    }`
+                  ? `https://lh3.googleusercontent.com/d/${product.imageUrl.match(/\/d\/([^/]+)\//)?.[1]
+                  }`
                   : product?.imageUrl
               }
               alt={product?.name}
@@ -442,33 +443,33 @@ function MenuManager() {
         </TableCell>
         <TableCell>
           <Typography variant="body2" fontWeight="medium">
-            {product.name || 'N/A'}
+            {product.name || t('n_a')}
           </Typography>
         </TableCell>
         <TableCell>
           <Typography variant="body2" fontWeight="medium" dir="rtl">
-            {product.nameAR || 'N/A'}
+            {product.nameAR || t('n_a')}
           </Typography>
         </TableCell>
         <TableCell>
-          <Chip 
-            label={`${Number(product.price || 0).toFixed(2)}`} 
-            color="primary" 
-            size="small"
-            variant="outlined"
-          />
-        </TableCell>
-        <TableCell>
-          <Chip 
-            label={`${product.calories || 0} cal`} 
-            color="secondary" 
+          <Chip
+            label={`${Number(product.price || 0).toFixed(2)}`}
+            color="primary"
             size="small"
             variant="outlined"
           />
         </TableCell>
         <TableCell>
           <Chip
-            label={product.isAvailable ? "Available" : "Not Available"}
+            label={`${product.calories || 0} ${t('cal')}`}
+            color="secondary"
+            size="small"
+            variant="outlined"
+          />
+        </TableCell>
+        <TableCell>
+          <Chip
+            label={product.isAvailable ? t('available') : t('not_available')}
             color={product.isAvailable ? "success" : "error"}
             size="small"
           />
@@ -480,7 +481,7 @@ function MenuManager() {
         </TableCell>
         <TableCell>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Tooltip title="View Details">
+            <Tooltip title={t('view_details')}>
               <IconButton
                 color="info"
                 size="small"
@@ -490,7 +491,7 @@ function MenuManager() {
                 <ViewIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Edit">
+            <Tooltip title={t('edit')}>
               <IconButton
                 color="warning"
                 size="small"
@@ -500,7 +501,7 @@ function MenuManager() {
                 <EditIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Delete">
+            <Tooltip title={t('delete')}>
               <IconButton
                 color="error"
                 size="small"
@@ -514,11 +515,11 @@ function MenuManager() {
         </TableCell>
       </TableRow>
     ));
-  }, [filteredProducts, loading, getCategoryName, handleDeleteProduct, handleViewProduct]);
+  }, [filteredProducts, loading, getCategoryName, handleDeleteProduct, handleViewProduct, t]);
 
   return (
     <Box sx={{ p: 3 }}>
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -529,14 +530,14 @@ function MenuManager() {
         draggable
         pauseOnHover
       />
-      
+
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Typography variant="h4" component="h1">
-          Menu Manager
+          {t('menu_manager')}
         </Typography>
-        
+
         <TextField
-          placeholder="Search products..."
+          placeholder={t('search_products')}
           value={searchQuery}
           onChange={handleSearchChange}
           size="small"
@@ -561,14 +562,14 @@ function MenuManager() {
       {/* Form for adding/editing */}
       <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
         <Typography variant="h5" component="h2" gutterBottom sx={{ color: 'text.secondary' }}>
-          {editingProduct ? "Edit Product" : "Add New Product"}
+          {editingProduct ? t('edit_product') : t('add_new_product')}
         </Typography>
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Product Name (English) *"
+              label={t('product_name_english')}
               value={editingProduct ? editingProduct.name : newProduct.name}
               onChange={(e) => handleInputChange(e, !!editingProduct, "name")}
               error={!!errors.name}
@@ -576,11 +577,11 @@ function MenuManager() {
               disabled={loading}
             />
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Product Name (Arabic) *"
+              label={t('product_name_arabic')}
               value={editingProduct ? editingProduct.nameAR || '' : newProduct.nameAR}
               onChange={(e) => handleInputChange(e, !!editingProduct, "nameAR")}
               error={!!errors.nameAR}
@@ -593,7 +594,7 @@ function MenuManager() {
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Image URL *"
+              label={t('image_url')}
               value={editingProduct ? editingProduct.imageUrl : newProduct.imageUrl}
               onChange={(e) => handleInputChange(e, !!editingProduct, "imageUrl")}
               error={!!errors.imageUrl}
@@ -605,7 +606,7 @@ function MenuManager() {
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Price"
+              label={t('price')}
               type="number"
               value={editingProduct ? editingProduct.price : newProduct.price}
               onChange={(e) => handleInputChange(e, !!editingProduct, "price")}
@@ -619,7 +620,7 @@ function MenuManager() {
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Calories"
+              label={t('calories')}
               type="number"
               value={editingProduct ? editingProduct.calories : newProduct.calories}
               onChange={(e) => handleInputChange(e, !!editingProduct, "calories")}
@@ -633,13 +634,13 @@ function MenuManager() {
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Description (English)"
+              label={t('description_english')}
               multiline
               rows={3}
               value={editingProduct ? editingProduct.description : newProduct.description}
               onChange={(e) => handleInputChange(e, !!editingProduct, "description")}
               error={!!errors.description}
-              helperText={errors.description || `${getDescriptionLength(editingProduct ? editingProduct.description : newProduct.description)} / 500 characters`}
+              helperText={errors.description || `${getDescriptionLength(editingProduct ? editingProduct.description : newProduct.description)} / ${t('500_characters')}`}
               disabled={loading}
             />
           </Grid>
@@ -647,13 +648,13 @@ function MenuManager() {
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Description (Arabic)"
+              label={t('description_arabic')}
               multiline
               rows={3}
               value={editingProduct ? editingProduct.descriptionAR || '' : newProduct.descriptionAR}
               onChange={(e) => handleInputChange(e, !!editingProduct, "descriptionAR")}
               error={!!errors.descriptionAR}
-              helperText={errors.descriptionAR || `${getDescriptionLength(editingProduct ? editingProduct.descriptionAR : newProduct.descriptionAR)} / 500 characters`}
+              helperText={errors.descriptionAR || `${getDescriptionLength(editingProduct ? editingProduct.descriptionAR : newProduct.descriptionAR)} / ${t('500_characters')}`}
               disabled={loading}
               dir="rtl"
             />
@@ -661,11 +662,11 @@ function MenuManager() {
 
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
-              <InputLabel>Category</InputLabel>
+              <InputLabel>{t('category')}</InputLabel>
               <Select
                 value={editingProduct ? editingProduct.category : newProduct.category}
                 onChange={(e) => handleInputChange(e, !!editingProduct, "category")}
-                label="Category"
+                label={t('category')}
                 disabled={loading}
               >
                 {renderCategoryOptions}
@@ -682,7 +683,7 @@ function MenuManager() {
                   disabled={loading}
                 />
               }
-              label="Available"
+              label={t('available')}
             />
           </Grid>
         </Grid>
@@ -697,7 +698,7 @@ function MenuManager() {
                 onClick={handleUpdateProduct}
                 disabled={loading}
               >
-                {loading ? <CircularProgress size={24} /> : "Save Changes"}
+                {loading ? <CircularProgress size={24} /> : t('save_changes')}
               </Button>
               <Button
                 variant="contained"
@@ -706,7 +707,7 @@ function MenuManager() {
                 onClick={cancelEditing}
                 disabled={loading}
               >
-                Cancel
+                {t('cancel')}
               </Button>
             </>
           ) : (
@@ -718,7 +719,7 @@ function MenuManager() {
               disabled={loading}
               size="large"
             >
-              {loading ? <CircularProgress size={24} /> : "Add Product"}
+              {loading ? <CircularProgress size={24} /> : t('add_product')}
             </Button>
           )}
         </Box>
@@ -731,25 +732,25 @@ function MenuManager() {
         </Box>
       ) : filteredProducts.length === 0 ? (
         <Alert severity={searchQuery ? "warning" : "info"} sx={{ mb: 3 }}>
-          {searchQuery ? `No products found for "${searchQuery}"` : "No products in the menu. Start by adding new products using the form above."}
+          {searchQuery ? `${t('no_products_found_for')} "${searchQuery}"` : t('no_products_in_menu_add_new')}
         </Alert>
       ) : (
         <Box sx={{ width: '100%', overflow: 'auto' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h5" component="h2">
-              Products List ({filteredProducts.length} of {products.length})
+              {t('products_list')} ({filteredProducts.length} {t('of')} {products.length})
               {searchQuery && (
                 <Typography variant="body2" color="text.secondary" component="span" sx={{ ml: 2 }}>
-                  Search results for "{searchQuery}"
+                  {t('search_results_for')} "{searchQuery}"
                 </Typography>
               )}
             </Typography>
           </Box>
-          
-          <TableContainer 
-            component={Paper} 
-            elevation={2} 
-            sx={{ 
+
+          <TableContainer
+            component={Paper}
+            elevation={2}
+            sx={{
               maxHeight: 600,
               '& .MuiTable-root': {
                 minWidth: 1000,
@@ -760,14 +761,14 @@ function MenuManager() {
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 'bold', minWidth: 50 }}>ID</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', minWidth: 80 }}>Image</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', minWidth: 120 }}>Name (EN)</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', minWidth: 120 }}>Name (AR)</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', minWidth: 80 }}>Price</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', minWidth: 100 }}>Calories</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', minWidth: 100 }}>Status</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', minWidth: 120 }}>Category</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', minWidth: 120 }}>Actions</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', minWidth: 80 }}>{t('image')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', minWidth: 120 }}>{t('name_en')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', minWidth: 120 }}>{t('name_ar')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', minWidth: 80 }}>{t('price')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', minWidth: 100 }}>{t('calories')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', minWidth: 100 }}>{t('status')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', minWidth: 120 }}>{t('category')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', minWidth: 120 }}>{t('actions')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -788,9 +789,9 @@ function MenuManager() {
         {selectedProduct && (
           <>
             <DialogTitle>
-              Product Details
+              {t('product_details')}
               <Chip
-                label={selectedProduct.isAvailable ? "Available" : "Not Available"}
+                label={selectedProduct.isAvailable ? t('available') : t('not_available')}
                 color={selectedProduct.isAvailable ? "success" : "error"}
                 size="small"
                 sx={{ ml: 2 }}
@@ -803,9 +804,8 @@ function MenuManager() {
                     component="img"
                     src={
                       selectedProduct?.imageUrl?.includes("drive.google.com")
-                        ? `https://lh3.googleusercontent.com/d/${
-                            selectedProduct.imageUrl.match(/\/d\/([^/]+)\//)?.[1]
-                          }`
+                        ? `https://lh3.googleusercontent.com/d/${selectedProduct.imageUrl.match(/\/d\/([^/]+)\//)?.[1]
+                        }`
                         : selectedProduct?.imageUrl || "https://via.placeholder.com/300x200?text=No+Image"
                     }
                     alt={selectedProduct?.name}
@@ -825,55 +825,55 @@ function MenuManager() {
                   <Grid container spacing={2}>
                     <Grid item xs={12}>
                       <Typography variant="h6" gutterBottom>
-                        {selectedProduct.name || 'N/A'}
+                        {selectedProduct.name || t('n_a')}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" dir="rtl">
-                        {selectedProduct.nameAR || 'N/A'}
+                        {selectedProduct.nameAR || t('n_a')}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid item xs={6}>
                       <Typography variant="subtitle2" color="text.secondary">
-                        Price
+                        {t('price')}
                       </Typography>
                       <Typography variant="body1">
                         {Number(selectedProduct.price || 0).toFixed(2)}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid item xs={6}>
                       <Typography variant="subtitle2" color="text.secondary">
-                        Calories
+                        {t('calories')}
                       </Typography>
                       <Typography variant="body1">
-                        {selectedProduct.calories || 0} cal
+                        {selectedProduct.calories || 0} {t('cal')}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid item xs={12}>
                       <Typography variant="subtitle2" color="text.secondary">
-                        Category
+                        {t('category')}
                       </Typography>
                       <Typography variant="body1">
                         {getCategoryName(selectedProduct.category)}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid item xs={12}>
                       <Typography variant="subtitle2" color="text.secondary">
-                        Description (English)
+                        {t('description_english')}
                       </Typography>
                       <Typography variant="body2">
-                        {selectedProduct.description || 'No description'}
+                        {selectedProduct.description || t('no_description')}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid item xs={12}>
                       <Typography variant="subtitle2" color="text.secondary">
-                        Description (Arabic)
+                        {t('description_arabic')}
                       </Typography>
                       <Typography variant="body2" dir="rtl">
-                        {selectedProduct.descriptionAR || 'لا يوجد وصف'}
+                        {selectedProduct.descriptionAR || t('no_description_ar')}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -881,9 +881,9 @@ function MenuManager() {
               </Grid>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setViewDialogOpen(false)}>Close</Button>
-              <Button 
-                variant="contained" 
+              <Button onClick={() => setViewDialogOpen(false)}>{t('close')}</Button>
+              <Button
+                variant="contained"
                 color="warning"
                 startIcon={<EditIcon />}
                 onClick={() => {
@@ -891,7 +891,7 @@ function MenuManager() {
                   startEditing(selectedProduct);
                 }}
               >
-                Edit
+                {t('edit')}
               </Button>
             </DialogActions>
           </>

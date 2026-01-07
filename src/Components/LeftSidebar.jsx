@@ -1,11 +1,14 @@
 import { Radio } from "@mui/joy";
 import { Box, Typography, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
-import { FaArrowRight, FaArrowDown, FaBars, FaTimes } from "react-icons/fa";
+import { FaArrowRight, FaArrowDown, FaBars, FaTimes, FaSignOutAlt, FaWarehouse, FaUsers, FaTag, FaBox } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-// import { BiFoodMenu } from "react-icons/bi";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import ListAltIcon from "@mui/icons-material/ListAlt";
 import ManageHistoryIcon from "@mui/icons-material/ManageHistory";
+import { useTranslation } from "react-i18next";
+import TranslateIcon from "@mui/icons-material/Translate";
 
 const LeftSidebar = () => {
   const [selectedPage, setSelectedPage] = useState(0);
@@ -14,13 +17,13 @@ const LeftSidebar = () => {
   const [showWarehouseItems, setShowWarehouseItems] = useState(false);
   const [showTeamItems, setShowTeamItems] = useState(false);
   const [tapParts, setTapParts] = useState([]);
-  const [activeTap, setActiveTap] = useState("dashbaord");
+  const [activeTap, setActiveTap] = useState("dashboard");
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   let location = useLocation().pathname;
 
   useEffect(() => {
-    const parts = location.split("/");
+    const parts = location.split("");
     setTapParts(parts);
     setActiveTap(parts[1]);
   }, [location]);
@@ -38,17 +41,26 @@ const LeftSidebar = () => {
     window.location.href = "/";
   };
 
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = () => {
+    const currentLang = i18n.language;
+    const newLang = currentLang.startsWith("ar") ? "en" : "ar";
+    i18n.changeLanguage(newLang);
+  };
+
   const sidebarContent = (
     <>
       <div style={{ textAlign: "center" }}>
-        <img
-          src="/lightLogo.jpg"
+        {/* <img
+          src="/logo.jpg"
           alt="Logo"
           style={{ height: 120, borderRadius: "50%" }}
-        />
-        <Typography variant="h6" sx={{ mb: 3, fontWeight: "bold" }}>
-          Asmak Thraa
-        </Typography>
+        /> */}
+        {/* <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>
+          {t('Elhoot')}
+          
+        </Typography> */}
       </div>
       <div
         style={{
@@ -92,53 +104,22 @@ const LeftSidebar = () => {
                   gap: 5,
                 }}
               >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M3 13h4V3H3v10zM10 21h4V8h-4v13zM17 21h4V11h-4v10z"
-                    stroke="#9CA3AF"
-                    strokeWidth="1.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <p style={{ fontSize: "16px", margin: 0 }}>Dashboard</p>
+                <DashboardIcon sx={{ color: activeTap == "dashboard" ? "#fff" : "#9CA3AF" }} />
+                <p style={{ fontSize: "16px", margin: 0 }}>{t('dashboard')}</p>
               </Link>
 
               {ShowDashbaordItems ? (
                 <FaArrowDown
                   onClick={() => setShowDashbaordItems(!ShowDashbaordItems)}
+                  style={{ color: activeTap == "dashboard" ? "#fff" : "#000" }}
                 />
               ) : (
                 <FaArrowRight
                   onClick={() => setShowDashbaordItems(!ShowDashbaordItems)}
+                  style={{ color: activeTap == "dashboard" ? "#fff" : "#000" }}
                 />
               )}
             </div>
-          )}
-
-          {ShowDashbaordItems && (
-            <>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  borderRadius: "15px",
-                  padding: "0px 20px",
-                  alignItems: "center",
-                }}
-              >
-                <p style={{ fontSize: "16px", margin: 0 }}>Expenses</p>
-                <Link to={"/dashboard/expenses"}>
-                  <Radio checked={location === "/dashboard/expenses"} />
-                </Link>
-              </div>
-            </>
           )}
 
           {localStorage.role === "Admin" && (
@@ -164,104 +145,23 @@ const LeftSidebar = () => {
                   alignItems: "center",
                 }}
               >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M9 7h6M9 12h6M9 17h6"
-                    stroke="#9CA3AF"
-                    strokeWidth="1.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <rect
-                    x="3"
-                    y="3"
-                    width="18"
-                    height="18"
-                    rx="2"
-                    stroke="#9CA3AF"
-                    strokeWidth="1.2"
-                  />
-                </svg>
-                <p style={{ fontSize: "16px", margin: 0 }}>orders list</p>
+                <ListAltIcon sx={{ color: activeTap == "orderlist" ? "#fff" : "#9CA3AF" }} />
+                <p style={{ fontSize: "16px", margin: 0 }}>{t('Orders')}</p>
               </Link>
               {showOrderListItems ? (
                 <FaArrowDown
                   onClick={() => setShowOrderListItems(!showOrderListItems)}
+                  style={{ color: activeTap == "orderlist" ? "#fff" : "#000" }}
                 />
               ) : (
                 <FaArrowRight
                   onClick={() => setShowOrderListItems(!showOrderListItems)}
+                  style={{ color: activeTap == "orderlist" ? "#fff" : "#000" }}
                 />
               )}
             </div>
           )}
 
-          {showOrderListItems && (
-            <>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  borderRadius: "15px",
-                  padding: "0px 10px",
-                  alignItems: "center",
-                }}
-              >
-                <p
-                  style={{ fontSize: "14px", margin: 0, whiteSpace: "nowrap" }}
-                >
-                  orders from year
-                </p>
-                <Link to={"/orderlist/yearly"}>
-                  <Radio checked={location === "/orderlist/yearly"} />
-                </Link>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  borderRadius: "15px",
-                  padding: "0px 10px",
-                  alignItems: "center",
-                }}
-              >
-                <p
-                  style={{ fontSize: "14px", margin: 0, whiteSpace: "nowrap" }}
-                >
-                  orders from month
-                </p>
-                <Link to={"/orderlist/monthly"}>
-                  <Radio checked={location === "/orderlist/monthly"} />
-                </Link>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  borderRadius: "15px",
-                  padding: "0px 10px",
-                  alignItems: "center",
-                }}
-              >
-                <p
-                  style={{ fontSize: "14px", margin: 0, whiteSpace: "nowrap" }}
-                >
-                  orders from week
-                </p>
-                <Link to={"/orderlist/weekly"}>
-                  <Radio checked={location === "/orderlist/weekly"} />
-                </Link>
-              </div>
-            </>
-          )}
           {localStorage.role == "CallCenter" && (
             <div
               style={{
@@ -284,11 +184,39 @@ const LeftSidebar = () => {
                   alignItems: "center",
                 }}
               >
-                <ManageHistoryIcon />
-                <p style={{ fontSize: "16px", margin: 0 }}>Management</p>
+                <ManageHistoryIcon sx={{ color: activeTap == "fininshalPost" ? "#fff" : "#9CA3AF" }} />
+                <p style={{ fontSize: "16px", margin: 0 }}>{t('management')}</p>
               </Link>
             </div>
           )}
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              background: activeTap == "menumangement" ? "#000" : "#fff",
+              color: activeTap == "menumangement" ? "#fff" : "#000",
+              borderRadius: "15px",
+              padding: "10px 10px",
+              alignItems: "center",
+            }}
+          >
+            <Link
+              to={"/menumangement"}
+              style={{
+                textDecoration: "none",
+                color: activeTap == "menumangement" ? "#fff" : "#000",
+                display: "flex",
+                gap: 5,
+                alignItems: "center",
+              }}
+            >
+              <MenuBookIcon sx={{ color: activeTap == "menumangement" ? "#fff" : "#9CA3AF" }} />
+              <p style={{ fontSize: "16px", margin: 0 }}>{t('products')}</p>
+            </Link>
+
+            <FaArrowRight style={{ color: activeTap == "menumangement" ? "#fff" : "#000" }} />
+          </div>
 
           <div
             style={{
@@ -311,108 +239,21 @@ const LeftSidebar = () => {
                 alignItems: "center",
               }}
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M3 9.5L12 4l9 5.5V20a1 1 0 0 1-1 1h-16a1 1 0 0 1-1-1V9.5z"
-                  stroke="#9CA3AF"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M9 21V11h6v10"
-                  stroke="#9CA3AF"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <p style={{ fontSize: "16px", margin: 0 }}>warehouse</p>
+              <FaWarehouse style={{ color: activeTap == "warehouse" ? "#fff" : "#9CA3AF" }} />
+              <p style={{ fontSize: "16px", margin: 0 }}>{t('warehouse')}</p>
             </Link>
 
             {showWarehouseItems ? (
               <FaArrowDown
                 onClick={() => setShowWarehouseItems(!showWarehouseItems)}
+                style={{ color: activeTap == "warehouse" ? "#fff" : "#000" }}
               />
             ) : (
               <FaArrowRight
                 onClick={() => setShowWarehouseItems(!showWarehouseItems)}
+                style={{ color: activeTap == "warehouse" ? "#fff" : "#000" }}
               />
             )}
-          </div>
-
-          {showWarehouseItems && (
-            <>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  borderRadius: "15px",
-                  padding: "0px 20px",
-                  alignItems: "center",
-                }}
-              >
-                <p style={{ fontSize: "16px", margin: 0 }}>Add product</p>
-                <Link to={"/warehouse/addProduct"}>
-                  <Radio checked={location === "/warehouse/addProduct"} />
-                </Link>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  borderRadius: "15px",
-                  padding: "0px 20px",
-                  alignItems: "center",
-                }}
-              >
-                <p style={{ fontSize: "16px", margin: 0 }}>Edit product</p>
-                <Radio
-                  checked={tapParts[2] === "editeProduct"}
-                  onClick={() => {
-                    alert(
-                      "Firstly Select Product Form warehouse and press edit button"
-                    );
-                  }}
-                />
-              </div>
-            </>
-          )}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              background: activeTap == "menumangement" ? "#000" : "#fff",
-              color: activeTap == "menumangement" ? "#fff" : "#000",
-              borderRadius: "15px",
-              padding: "10px 10px",
-              alignItems: "center",
-            }}
-          >
-            <Link
-              to={"/menumangement"}
-              style={{
-                textDecoration: "none",
-                color: activeTap == "menumangement" ? "#fff" : "#000",
-                display: "flex",
-                gap: 5,
-                alignItems: "center",
-              }}
-            >
-              {/* <BiFoodMenu /> */}
-              <MenuBookIcon />
-              <p style={{ fontSize: "16px", margin: 0 }}>Menu</p>
-            </Link>
-          
-              <FaArrowRight />
-            
           </div>
 
           <div
@@ -440,86 +281,67 @@ const LeftSidebar = () => {
                 alignItems: "center",
               }}
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M16 11a3 3 0 1 0-6 0M6 21v-1a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v1"
-                  stroke="#333"
-                  strokeWidth="1.25"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <p style={{ fontSize: "16px", margin: 0 }}>Team</p>
+              <FaUsers style={{ color: activeTap == "team" ? "#fff" : "#9CA3AF" }} />
+              <p style={{ fontSize: "16px", margin: 0 }}>{t('users')}</p>
             </Link>
             {showTeamItems ? (
-              <FaArrowDown onClick={() => setShowTeamItems(!showTeamItems)} />
+              <FaArrowDown
+                onClick={() => setShowTeamItems(!showTeamItems)}
+                style={{ color: activeTap == "team" ? "#fff" : "#000" }}
+              />
             ) : (
-              <FaArrowRight onClick={() => setShowTeamItems(!showTeamItems)} />
+              <FaArrowRight
+                onClick={() => setShowTeamItems(!showTeamItems)}
+                style={{ color: activeTap == "team" ? "#fff" : "#000" }}
+              />
             )}
           </div>
 
-          {showTeamItems && (
-            <>
-              {localStorage.role === "Admin" && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    borderRadius: "15px",
-                    padding: "0px 20px",
-                    alignItems: "center",
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: "16px",
-                      margin: 0,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Users Team
-                  </p>
-                  <Link to={"/team/CallcenterTeam"}>
-                    <Radio checked={location === "/team/CallcenterTeam"} />
-                  </Link>
-                </div>
-              )}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  borderRadius: "15px",
-                  padding: "0px 20px",
-                  alignItems: "center",
-                }}
-              >
-                <p style={{ fontSize: "16px", margin: 0 }}>Stuff Team</p>
-                <Link to={"/team/stuffTeam"}>
-                  <Radio checked={location === "/team/stuffTeam"} />
-                </Link>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  borderRadius: "15px",
-                  padding: "0px 20px",
-                  alignItems: "center",
-                }}
-              >
-                <p style={{ fontSize: "15px", margin: 0 }}>Delivery Team</p>
-                <Link to={"/team/deliveryTeam"}>
-                  <Radio checked={location === "/team/deliveryTeam"} />
-                </Link>
-              </div>
-            </>
-          )}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              background: activeTap == "coupons" ? "#000" : "#fff",
+              color: activeTap == "coupons" ? "#fff" : "#000",
+              borderRadius: "15px",
+              padding: "10px 10px",
+              alignItems: "center",
+            }}
+          >
+            <Link
+              to={"/coupons"}
+              style={{
+                textDecoration: "none",
+                color: activeTap == "coupons" ? "#fff" : "#000",
+                display: "flex",
+                gap: 5,
+                alignItems: "center",
+              }}
+            >
+              <FaTag style={{ color: activeTap == "coupons" ? "#fff" : "#9CA3AF" }} />
+              <p style={{ fontSize: "16px", margin: 0 }}>{t('coupons')}</p>
+            </Link>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              borderRadius: "15px",
+              padding: "10px 10px",
+              alignItems: "center",
+              cursor: "pointer",
+            }}
+            onClick={() => changeLanguage()}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <TranslateIcon sx={{ color: "#9CA3AF" }} />
+              <p style={{ fontSize: "16px", margin: 0, color: "#000" }}>
+                {i18n.language === 'ar' ? 'English' : 'العربية'}
+              </p>
+            </div>
+            <FaArrowRight style={{ color: "#000" }} />
+          </div>
 
           <div
             style={{
@@ -530,11 +352,15 @@ const LeftSidebar = () => {
               alignItems: "center",
               marginTop: "auto",
               cursor: "pointer",
+              backgroundColor: "#f5f5f5",
             }}
             onClick={handleLogout}
           >
-            <p style={{ fontSize: "16px", margin: 0 }}>log out</p>
-            <FaArrowRight />
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FaSignOutAlt style={{ color: "#ff4444" }} />
+              <p style={{ fontSize: "16px", margin: 0, color: "#ff4444" }}>{t('log_out')}</p>
+            </div>
+            <FaArrowRight style={{ color: "#ff4444" }} />
           </div>
         </div>
       </div>
@@ -565,7 +391,7 @@ const LeftSidebar = () => {
           backgroundColor: "white",
           p: 3,
           borderRight: "1px solid #e0e0e0",
-          maxHeight: "100vh",
+          height: '100vh',
           display: { xs: "none", md: "block" },
         }}
         className="leftSideBar"

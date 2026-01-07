@@ -4,8 +4,10 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import ConfirmAlert from "./alert";
+import { useTranslation } from "react-i18next";
 
 const StuffTeam = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPosition, setSelectedPosition] = useState("all");
@@ -24,7 +26,7 @@ const StuffTeam = () => {
     console.log(deleteId);
 
     axios
-      .delete(`https://tharaa.premiumasp.net/api/Stuff/${deleteId}`, {
+      .delete(`api/Stuff/${deleteId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -34,7 +36,7 @@ const StuffTeam = () => {
         if (res.data && res.data.message) {
           console.log(res.data.message);
         } else {
-          console.log("Callcenter deleted successfully");
+          console.log(t('callcenter_deleted_successfully'));
         }
         getData();
       })
@@ -43,17 +45,17 @@ const StuffTeam = () => {
 
         if (err.response && err.response.data) {
           console.log(
-            err.response.data.message || "Failed to delete callcenter"
+            err.response.data.message || t('failed_to_delete_callcenter')
           );
         } else {
-          console.log("Failed to delete callcenter");
+          console.log(t('failed_to_delete_callcenter'));
         }
       });
   };
   let [showConfirmAlert, setshowConfirmAlert] = useState(false);
   useEffect(() => {
     axios
-      .get("https://tharaa.premiumasp.net/api/Stuff", {
+      .get("api/Stuff", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -125,11 +127,11 @@ const StuffTeam = () => {
                     maxWidth: "90vw",
                   }}
                 >
-                  <div className="small text-muted mb-2">number of employs</div>
+                  <div className="small text-muted mb-2">{t('number_of_employs')}</div>
                   <div className="d-flex justify-content-between align-items-center">
                     <div className="h5 mb-0">{totalEmploys}</div>
                     <div className="badge bg-light text-success border">
-                      available
+                      {t('available')}
                     </div>
                   </div>
                 </div>
@@ -145,7 +147,7 @@ const StuffTeam = () => {
                   }}
                 >
                   <div className="small text-muted mb-2">
-                    total salary form employess
+                    {t('total_salary_form_employees')}
                   </div>
                   <div className="h5 mb-0">{totalSalaryEmploys} SAR</div>
                 </div>
@@ -161,7 +163,7 @@ const StuffTeam = () => {
                   }}
                 >
                   <div className="small text-muted mb-2">
-                    Total emplyes discount
+                    {t('total_employees_discount')}
                   </div>
                   <div className="h5 mb-0">{totalEmploysDiscount}</div>
                 </div>
@@ -171,8 +173,8 @@ const StuffTeam = () => {
             {/* عنوان ملخص الموظفين وضوابط التحكم - محسن للريسبونسف */}
             <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
               <div>
-                <h6 className="mb-1">staff summery</h6>
-                <div className="text-muted small">Overview of Stuff Team.</div>
+                <h6 className="mb-1">{t('staff_summary')}</h6>
+                <div className="text-muted small">{t('overview_of_stuff_team')}</div>
               </div>
 
               <div className="d-flex gap-2 align-items-center mt-2 mt-md-0">
@@ -180,11 +182,11 @@ const StuffTeam = () => {
                   className="btn btn-outline-secondary btn-sm"
                   onClick={print}
                 >
-                  <i className="bi bi-download"></i> Export
+                  <i className="bi bi-download"></i> {t('export')}
                 </button>
                 <Link to={"/team/addStuff"}>
                   <button className="btn btn-primary btn-sm">
-                    New staff <i className="bi bi-plus-lg ms-1"></i>
+                    {t('new_staff')} <i className="bi bi-plus-lg ms-1"></i>
                   </button>
                 </Link>
               </div>
@@ -195,7 +197,7 @@ const StuffTeam = () => {
                 <div className="inner-search d-flex">
                   <input
                     className="form-control me-2"
-                    placeholder="Search for id, name, position"
+                    placeholder={t('search_for_id_name_position')}
                     value={searchTerm}
                     onChange={handleSearchChange}
                   />
@@ -214,24 +216,22 @@ const StuffTeam = () => {
                 <div className="d-flex flex-wrap gap-2 align-items-center">
                   <button
                     type="button"
-                    className={`btn btn-sm ${
-                      selectedPosition === "all"
-                        ? "btn-primary"
-                        : "btn-outline-primary"
-                    }`}
+                    className={`btn btn-sm ${selectedPosition === "all"
+                      ? "btn-primary"
+                      : "btn-outline-primary"
+                      }`}
                     onClick={() => handlePositionFilter("all")}
                   >
-                    All
+                    {t('all')}
                   </button>
                   {positions.map((position) => (
                     <button
                       key={position}
                       type="button"
-                      className={`btn btn-sm ${
-                        selectedPosition === position
-                          ? "btn-primary"
-                          : "btn-outline-primary"
-                      }`}
+                      className={`btn btn-sm ${selectedPosition === position
+                        ? "btn-primary"
+                        : "btn-outline-primary"
+                        }`}
                       onClick={() => handlePositionFilter(position)}
                     >
                       {position}
@@ -242,7 +242,7 @@ const StuffTeam = () => {
                       className="btn btn-sm btn-outline-secondary ms-auto"
                       onClick={clearFilters}
                     >
-                      Clear Filters
+                      {t('clear_filters')}
                     </button>
                   )}
                 </div>
@@ -256,14 +256,14 @@ const StuffTeam = () => {
                     <table className="table mb-0 align-middle">
                       <thead className="table-light">
                         <tr>
-                          <th>Id</th>
-                          <th>Name</th>
-                          <th>Position</th>
-                          <th>Age</th>
-                          {/* <th>Discount</th> */}
-                          <th>Salary</th>
-                          <th>Start date</th>
-                          <th className="text-end">Action</th>
+                          <th>{t('id')}</th>
+                          <th>{t('name')}</th>
+                          <th>{t('position')}</th>
+                          <th>{t('age')}</th>
+                          {/* <th>{t('discount')}</th> */}
+                          <th>{t('salary')}</th>
+                          <th>{t('start_date')}</th>
+                          <th className="text-end">{t('action')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -308,9 +308,9 @@ const StuffTeam = () => {
                               </td>
                               <td className="text-end">
                                 <Link to={`/team/stuffTeam/Edit/${staff.id}`}>
-                                <button className="btn btn-sm btn-outline-secondary me-1">
-                                  <i className="bi bi-pencil"></i>
-                                </button>
+                                  <button className="btn btn-sm btn-outline-secondary me-1">
+                                    <i className="bi bi-pencil"></i>
+                                  </button>
                                 </Link>
                                 <button className="btn btn-sm btn-outline-secondary">
                                   <i
@@ -330,7 +330,7 @@ const StuffTeam = () => {
                               colSpan="8"
                               className="text-center py-4 text-muted"
                             >
-                              No employees found matching your criteria
+                              {t('no_employees_found_matching_your_criteria')}
                             </td>
                           </tr>
                         )}

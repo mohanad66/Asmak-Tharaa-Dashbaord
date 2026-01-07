@@ -17,6 +17,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import axios from "axios";
 import { useDate } from "../../Contexts/DateContext";
+import { useTranslation } from "react-i18next";
 
 const DashboardContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2, 3),
@@ -110,6 +111,7 @@ const ReturnChip = styled(Chip)(({ positive }) => ({
 }));
 
 const TransactionDashboard = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -235,7 +237,7 @@ const TransactionDashboard = () => {
   useEffect(() => {
     axios
       .get(
-        `https://tharaa.premiumasp.net/api/CallcenterOrder/GetOrderDate?from=${lastWeek}&to=${today}`,
+        `/api/UsersOrder/GetOrderDate?from=${lastWeek}&to=${today}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -245,7 +247,7 @@ const TransactionDashboard = () => {
       .then((res) => {
         setTotalOrders(
           res.data?.callCenterOrderDetails?.data?.numberOfOrders +
-            res.data?.mobileOrderDetails?.data?.numberOfOrders
+          res.data?.mobileOrderDetails?.data?.numberOfOrders
         );
         const callCenterOrders =
           Number(res.data?.callCenterOrderDetails?.data?.totalPrice) || 0;
@@ -262,12 +264,12 @@ const TransactionDashboard = () => {
     const fetchData = async () => {
       try {
         const callCenterRes = await axios.get(
-          "https://tharaa.premiumasp.net/api/CallcenterOrder",
+          "/api/UsersOrder",
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const ordersRes = await axios.get(
-          "https://tharaa.premiumasp.net/api/Order",
+          "api/Order",
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -292,7 +294,7 @@ const TransactionDashboard = () => {
 
   return (
     <DashboardContainer>
-      <Breadcrumb>Dashboard › Total Revenue › transaction</Breadcrumb>
+      <Breadcrumb>{t('dashboard')} › {t('total_revenue')} › {t('transaction')}</Breadcrumb>
 
       {/* Top Stats */}
       <Grid container spacing={3} mb={5}>
@@ -303,10 +305,10 @@ const TransactionDashboard = () => {
             </IconWrapper>
             <Box>
               <Typography variant="body2" color="#64748b">
-                Total Amount
+                {t('total_amount')}
               </Typography>
               <Typography variant={isMobile ? "h6" : "h5"} fontWeight={700}>
-                {stats.total} SAR
+                {stats.total} {t('sar')}
               </Typography>
             </Box>
           </StatCard>
@@ -319,13 +321,13 @@ const TransactionDashboard = () => {
             </IconWrapper>
             <Box>
               <Typography variant="body2" color="#64748b">
-                Paid Amount
+                {t('paid_amount')}
               </Typography>
               <Typography variant={isMobile ? "h6" : "h5"} fontWeight={700}>
-                {stats.paidTotal} SAR
+                {stats.paidTotal} {t('sar')}
               </Typography>
               <Typography variant="caption" color="#16a34a">
-                {stats.paidCount} orders
+                {stats.paidCount} {t('orders')}
               </Typography>
             </Box>
           </StatCard>
@@ -338,13 +340,13 @@ const TransactionDashboard = () => {
             </IconWrapper>
             <Box>
               <Typography variant="body2" color="#64748b">
-                Unpaid Amount
+                {t('unpaid_amount')}
               </Typography>
               <Typography variant={isMobile ? "h6" : "h5"} fontWeight={700}>
-                {stats.unpaidTotal} SAR
+                {stats.unpaidTotal} {t('sar')}
               </Typography>
               <Typography variant="caption" color="#dc2626">
-                {stats.unpaidCount} orders
+                {stats.unpaidCount} {t('orders')}
               </Typography>
             </Box>
           </StatCard>
@@ -357,7 +359,7 @@ const TransactionDashboard = () => {
             </IconWrapper>
             <Box>
               <Typography variant="body2" color="#64748b">
-                Total Orders
+                {t('total_orders')}
               </Typography>
               <Typography variant={isMobile ? "h6" : "h5"} fontWeight={700}>
                 {ordersData.length}
@@ -376,21 +378,21 @@ const TransactionDashboard = () => {
               fontWeight={600}
               mb={3}
             >
-              Daily Revenue
+              {t('daily_revenue')}
             </Typography>
             <LineChart
               series={[
                 {
                   data: chartData.daily.amounts,
                   color: "#f59e0b",
-                  label: "Revenue (SAR)",
+                  label: `${t('revenue')} (${t('sar')})`,
                 },
               ]}
               xAxis={[
                 {
                   data: chartData.daily.labels,
                   scaleType: "point",
-                  label: "Days",
+                  label: t('days'),
                 },
               ]}
               height={isMobile ? 250 : 300}
@@ -407,21 +409,21 @@ const TransactionDashboard = () => {
               fontWeight={600}
               mb={3}
             >
-              Weekly Revenue
+              {t('weekly_revenue')}
             </Typography>
             <LineChart
               series={[
                 {
                   data: chartData.weekly.amounts,
                   color: "#06b6d4",
-                  label: "Revenue (SAR)",
+                  label: `${t('revenue')} (${t('sar')})`,
                 },
               ]}
               xAxis={[
                 {
                   data: chartData.weekly.labels,
                   scaleType: "point",
-                  label: "Weeks",
+                  label: t('weeks'),
                 },
               ]}
               height={isMobile ? 250 : 300}
@@ -446,7 +448,7 @@ const TransactionDashboard = () => {
               fontWeight={600}
               mb={3}
             >
-              Daily Transactions
+              {t('daily_transactions')}
             </Typography>
             {dailyData.map((day, index) => (
               <Box key={index}>
@@ -459,7 +461,7 @@ const TransactionDashboard = () => {
                       {day.date}
                     </Typography>
                     <Typography variant="body2" color="#64748b">
-                      {day.count} orders
+                      {day.count} {t('orders')}
                     </Typography>
                   </Box>
                   <Box textAlign={isMobile ? "left" : "right"}>
@@ -467,16 +469,16 @@ const TransactionDashboard = () => {
                       fontWeight={600}
                       variant={isMobile ? "body2" : "body1"}
                     >
-                      {day.total} SAR
+                      {day.total} {t('sar')}
                     </Typography>
                     <Box display="flex" gap={1} mt={0.5}>
                       <Chip
-                        label={`Paid: ${day.paid} SAR`}
+                        label={`${t('paid')}: ${day.paid} ${t('sar')}`}
                         size="small"
                         sx={{ backgroundColor: "#d1fae5", color: "#065f46" }}
                       />
                       <Chip
-                        label={`Unpaid: ${day.unpaid} SAR`}
+                        label={`${t('unpaid')}: ${day.unpaid} ${t('sar')}`}
                         size="small"
                         sx={{ backgroundColor: "#fee2e2", color: "#991b1b" }}
                       />
@@ -502,7 +504,7 @@ const TransactionDashboard = () => {
               fontWeight={600}
               mb={3}
             >
-              Weekly Summary
+              {t('weekly_summary')}
             </Typography>
             {weeklyData.map((week, index) => (
               <Box key={index}>
@@ -515,7 +517,7 @@ const TransactionDashboard = () => {
                       {week.week}
                     </Typography>
                     <Typography variant="body2" color="#64748b">
-                      {week.count} orders
+                      {week.count} {t('orders')}
                     </Typography>
                   </Box>
                   <Box textAlign={isMobile ? "left" : "right"}>
@@ -523,7 +525,7 @@ const TransactionDashboard = () => {
                       fontWeight={600}
                       variant={isMobile ? "body2" : "body1"}
                     >
-                      {week.total} SAR
+                      {week.total} {t('sar')}
                     </Typography>
                     <Box
                       display="flex"
@@ -532,12 +534,12 @@ const TransactionDashboard = () => {
                       flexDirection={isMobile ? "column" : "row"}
                     >
                       <Chip
-                        label={`Paid: ${week.paid} SAR`}
+                        label={`${t('paid')}: ${week.paid} ${t('sar')}`}
                         size="small"
                         sx={{ backgroundColor: "#d1fae5", color: "#065f46" }}
                       />
                       <Chip
-                        label={`Unpaid: ${week.unpaid} SAR`}
+                        label={`${t('unpaid')}: ${week.unpaid} ${t('sar')}`}
                         size="small"
                         sx={{ backgroundColor: "#fee2e2", color: "#991b1b" }}
                       />
